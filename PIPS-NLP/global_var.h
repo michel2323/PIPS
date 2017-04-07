@@ -6,7 +6,9 @@
 #include <iostream>
 #include <mpi.h>
 #include "./Core/Utilities/PerfMetrics.h"
-
+#ifdef DUMP 
+extern int gchild;
+#endif
 extern int gmyid;
 extern int gnprocs;
 extern int gmyid_node;

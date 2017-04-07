@@ -183,14 +183,20 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
 
   // First tell children to factorize. 
   for(size_t c=0; c<children.size(); c++) {
+    #ifdef DUMP
+    // matrix is dumped inside matrixChanged(). Due to code structure the child id has to be passed via 
+    // global variable, which is set here
+    extern int gchild;
+    gchild=c;
+    #endif
     tempNegEVal = children[c]->factor2(prob->children[c], vars);
-	if(tempNegEVal<0){
-	  matIsSingular = 1; 
-	}else{
-	  negEVal += tempNegEVal;
-	}
+    if(tempNegEVal<0){
+      matIsSingular = 1; 
+    }else{
+      negEVal += tempNegEVal;
+    }
   }
-
+  printf("Children size: %lu\n", children.size());
   for(size_t c=0; c<children.size(); c++) {
 #ifdef STOCH_TESTING
     g_scenNum=c;
@@ -200,7 +206,7 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
 
     children[c]->stochNode->resMon.recFactTmChildren_start();    
     //---------------------------------------------
-    children[c]->addTermToDenseSchurCompl(prob->children[c], kktd);
+    children[c]->addTermToDenseSchurCompl(prob->children[c], kktd,c);
     //---------------------------------------------
     children[c]->stochNode->resMon.recFactTmChildren_stop();
   }
@@ -918,8 +924,13 @@ sLinsysRoot::UpdateMatrices( Data * prob_in, int const updateLevel)
   }
   
   // propagate it to the subtree
-  for(size_t it=0; it<children.size(); it++)
+  for(size_t it=0; it<children.size(); it++) {
+#ifdef DUMP
+    extern int gchild;
+    gchild=it;
+#endif 
     children[it]->UpdateMatrices(prob->children[it],updateLevel);
+  }
 
   if(useUpdate>=1){
 

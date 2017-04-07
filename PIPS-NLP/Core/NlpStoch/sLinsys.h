@@ -104,7 +104,7 @@ class sLinsys : public NlpGenLinsys
    *  the terms from the Schur Complement 
    */
   virtual void addTermToDenseSchurCompl(sData *prob, 
-					DenseSymMatrix& SC);
+					DenseSymMatrix& SC, int nchild);
 					
   virtual void addColsToDenseSchurCompl(sData *prob, 
 					DenseGenMatrix& out, 

@@ -203,6 +203,12 @@ int Ma57Solver::matrixChanged()
 	  memcpy( &M[mStorage->krowM[n]], &mStorage->additiveDiag[0], n * sizeof( double ) );  
 
   	}
+#ifdef DUMP  
+   extern int giterNum;
+   extern int gchild;
+   //mStorage->dumpMatrix("W\0",gchild,giterNum);
+   printf("Size of W is %d\n",n);
+#endif
 
 //	char *name = "mat.m";
 //

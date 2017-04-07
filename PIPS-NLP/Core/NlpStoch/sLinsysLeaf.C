@@ -255,6 +255,13 @@ sLinsysLeaf::UpdateMatrices( Data * prob_in,int const updateLevel)
       kkt->symAtSetSubmatrix( locnx + locmz, 0, prob->getLocalB(), 0, 0, locmy, locnx,firstBUpdate, LocBMap);
       kkt->symAtSetSubmatrix( locnx + locmz + locmy, 0, prob->getLocalD(), 0, 0, locmz, locnx,firstDUpdate, LocDMap);
 	}
+#ifdef DUMP
+  extern int giterNum;
+  extern int gchild;
+  (prob->getLocalQ()).dumpMatrix("Qs\0",gchild,giterNum);
+  (prob->getLocalB()).dumpMatrix("Bs\0",gchild,giterNum);
+  (prob->getLocalD()).dumpMatrix("Ds\0",gchild,giterNum);
+#endif
 	firstQUpdate = false;
 	firstBUpdate = false;
 	firstDUpdate = false;

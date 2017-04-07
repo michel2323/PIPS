@@ -448,8 +448,8 @@ void DeSymIndefSolver::solve ( OoqpVector& v )
     printf("Dumping 1stageSol.dmp\n");
     FILE *fp=fopen("1ststageSol.dmp","w");
     int ione=1;
-    fwrite(&ione, sizeof(int), 1, fp);
     fwrite(&n, sizeof(int), 1, fp);
+    fwrite(&ione, sizeof(int), 1, fp);
     fwrite(&sv[0], sizeof(double), n, fp);
     fclose(fp);
     dump1=false;

@@ -734,6 +734,19 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
   //(prob->getLocalQ()).printMatrixInMatlab("Q0.m");
   //(prob->getLocalB()).printMatrixInMatlab("A0.m");
   //(prob->getLocalD()).printMatrixInMatlab("C0.m");
+#ifdef DUMP
+  extern int gmyid;
+  extern int giterNum;
+  if(gmyid==0) {
+  (prob->getLocalQ()).dumpMatrix("Q0\0", gmyid, giterNum);
+  (prob->getLocalB()).dumpMatrix("B0\0", gmyid, giterNum);
+  (prob->getLocalC()).dumpMatrix("C0\0", gmyid, giterNum);
+  (prob->getLocalD()).dumpMatrix("D0\0", gmyid, giterNum);
+  (prob->getLocalE()).dumpMatrix("E0\0", gmyid, giterNum);
+  (prob->getLocalF()).dumpMatrix("F0\0", gmyid, giterNum);
+  //kktd->dumpMatrix("KKT\0", 0, giterNum);
+}
+#endif
 
 
 

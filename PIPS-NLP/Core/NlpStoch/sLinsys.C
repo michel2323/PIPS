@@ -661,13 +661,13 @@ void sLinsys::addTermToSchurResidual(sData* prob,
  */
 
 void sLinsys::addTermToDenseSchurCompl(sData *prob, 
-				       DenseSymMatrix& SC) 
+				       DenseSymMatrix& SC, int nchild) 
 {
   SparseGenMatrix& A = prob->getLocalA();
   SparseGenMatrix& C = prob->getLocalC();
   SparseGenMatrix& R = prob->getLocalCrossHessian();
   
-
+  printf("addTermToDense children\n");
   int N, nxP, NP,mR,nR;
   int locns = locmz;
   
@@ -675,11 +675,20 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
   int mli = prob->getmli();
   SparseGenMatrix& E = prob->getLocalE();
   SparseGenMatrix& F = prob->getLocalF();
-
+  
   SparseGenMatrix ET;
   SparseGenMatrix FT;
   ET.transCopyof(E);
   FT.transCopyof(F);
+
+#ifdef DUMP  
+  // dumping matrices
+  A.dumpMatrix("As\0", nchild, giterNum);
+  C.dumpMatrix("Cs\0", nchild, giterNum);
+  R.dumpMatrix("Rs\0", nchild, giterNum);
+  E.dumpMatrix("Es\0", nchild, giterNum);
+  F.dumpMatrix("Fs\0", nchild, giterNum);
+#endif
 
   int nx0, my0, mz0;
   stochNode->get_FistStageSize(nx0, my0,mz0);

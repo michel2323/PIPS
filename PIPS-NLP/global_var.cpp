@@ -16,6 +16,9 @@ double *gwindow=NULL;
 int *gipiv=NULL;
 MPI_Win gwin;
 MPI_Win gwin_ipiv;
+#ifdef DUMP 
+int gchild;
+#endif
 #ifdef NLPTIMING
 PerfMetrics gprof = PerfMetrics::getPerfMetrics();
 #endif
