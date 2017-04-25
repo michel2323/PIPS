@@ -166,6 +166,8 @@ public:
 
   virtual void copyIntoArrayWithIndex_AggVarCon( double *ResultArray, const int *vecmap, const int _length, bool isVar=true);  
   
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
+  
 };
 
 #endif

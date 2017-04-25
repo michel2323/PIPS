@@ -695,6 +695,10 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
 
   SimpleVector& ssDiag = dynamic_cast<SimpleVector&>(*sDiag);
   SimpleVector& szDiag = dynamic_cast<SimpleVector&>(*zDiag);
+#ifdef DUMP
+  sxDiag.dumpToFile()
+  sxDiag.dumpToFile("Dsx\0", gmyid, giterNum);
+#endif
 
   /////////////////////////////////////////////////////////////
   // update the KKT with  S part
@@ -738,12 +742,12 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
   extern int gmyid;
   extern int giterNum;
   if(gmyid==0) {
-  (prob->getLocalQ()).dumpMatrix("Q0\0", gmyid, giterNum);
-  (prob->getLocalB()).dumpMatrix("B0\0", gmyid, giterNum);
-  (prob->getLocalC()).dumpMatrix("C0\0", gmyid, giterNum);
-  (prob->getLocalD()).dumpMatrix("D0\0", gmyid, giterNum);
-  (prob->getLocalE()).dumpMatrix("E0\0", gmyid, giterNum);
-  (prob->getLocalF()).dumpMatrix("F0\0", gmyid, giterNum);
+  (prob->getLocalQ()).dumpToFile("Q0\0", gmyid, giterNum);
+  (prob->getLocalB()).dumpToFile("B0\0", gmyid, giterNum);
+  (prob->getLocalC()).dumpToFile("C0\0", gmyid, giterNum);
+  (prob->getLocalD()).dumpToFile("D0\0", gmyid, giterNum);
+  (prob->getLocalE()).dumpToFile("E0\0", gmyid, giterNum);
+  (prob->getLocalF()).dumpToFile("F0\0", gmyid, giterNum);
   //kktd->dumpMatrix("KKT\0", 0, giterNum);
 }
 #endif

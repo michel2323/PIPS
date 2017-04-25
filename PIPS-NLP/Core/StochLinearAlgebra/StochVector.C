@@ -1130,3 +1130,21 @@ void StochVector::copyIntoArrayWithIndex_AggVarCon( double *ResultArray, const i
   } 
 }
 
+void StochVector::dumpToFile(std::string name, int nchild, int giterNum) {
+  int n=this->getSize();
+  printf("Vector %s has size %d\n", name.c_str(), n);
+  if(n==0) {
+    printf("Size is zero. No output.\n");
+    return;
+  }
+  double *A=new double[n];
+  copyIntoArray(A);
+  std::stringstream fname;
+  fname << "global" << name << nchild << "_" << giterNum << ".dmp";
+  FILE *fp=fopen((fname.str()).c_str(),"w");
+  int ione=1;
+  fwrite(&n, sizeof(int), 1, fp);
+  fwrite(&ione, sizeof(int), 1, fp);
+  fwrite(A, sizeof(double), n, fp);
+  delete [] A;
+}

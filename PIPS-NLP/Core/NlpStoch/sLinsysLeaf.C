@@ -75,6 +75,11 @@ void sLinsysLeaf::setXDiagonal( OoqpVector& xdiag_ )
   StochVector& xdiag = dynamic_cast<StochVector&>(xdiag_);
   kkt->copyDiagonalVal_From( 0, *xdiag.vec, firstXDiagUpdate, xDiagIdxMap);
   firstXDiagUpdate = false;  
+#ifdef DUMP
+  extern int giterNum;
+  extern int gchild;
+  xdiag.dumpToFile("Dsx\0",gchild,giterNum);
+#endif
 }
 
 void sLinsysLeaf::setSDiagonal( OoqpVector& sdiag_ )
@@ -82,6 +87,11 @@ void sLinsysLeaf::setSDiagonal( OoqpVector& sdiag_ )
   StochVector& sdiag = dynamic_cast<StochVector&>(sdiag_);
   kkt->copyDiagonalVal_From( locnx, *sdiag.vec, firstSDiagUpdate, sDiagIdxMap);
   firstSDiagUpdate = false;  
+#ifdef DUMP
+  extern int giterNum;
+  extern int gchild;
+  sdiag.dumpToFile("Dss\0",gchild,giterNum);
+#endif
 }
 
 void sLinsysLeaf::setYDiagonal( OoqpVector& ydiag_ )
@@ -96,6 +106,11 @@ void sLinsysLeaf::setYDiagonal( OoqpVector& ydiag_ )
 	assert(0);
   } 
   firstYDiagUpdate = false;
+#ifdef DUMP
+  extern int giterNum;
+  extern int gchild;
+  ydiag.dumpToFile("Dsy\0",gchild,giterNum);
+#endif
 }
 
 void sLinsysLeaf::setZDiagonal( OoqpVector& zdiag_)
@@ -110,6 +125,11 @@ void sLinsysLeaf::setZDiagonal( OoqpVector& zdiag_)
 	assert(0);
   }  
   firstZDiagUpdate = false;
+#ifdef DUMP
+  extern int giterNum;
+  extern int gchild;
+  zdiag.dumpToFile("Dsz\0",gchild,giterNum);
+#endif
 }
 
 void sLinsysLeaf::setAdditiveDiagonal()
@@ -258,9 +278,9 @@ sLinsysLeaf::UpdateMatrices( Data * prob_in,int const updateLevel)
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  (prob->getLocalQ()).dumpMatrix("Qs\0",gchild,giterNum);
-  (prob->getLocalB()).dumpMatrix("Bs\0",gchild,giterNum);
-  (prob->getLocalD()).dumpMatrix("Ds\0",gchild,giterNum);
+  (prob->getLocalQ()).dumpToFile("Qs\0",gchild,giterNum);
+  (prob->getLocalB()).dumpToFile("Bs\0",gchild,giterNum);
+  (prob->getLocalD()).dumpToFile("Ds\0",gchild,giterNum);
 #endif
 	firstQUpdate = false;
 	firstBUpdate = false;

@@ -555,7 +555,7 @@ void DenseSymMatrix::symAtSetSubmatrix( int destRow, int destCol,
 
 }
 
-void DenseSymMatrix::dumpMatrix(std::string name, int nchild, int giterNum) {
+void DenseSymMatrix::dumpToFile(std::string name, int nchild, int giterNum) {
   int m,n;
   this->getSize(m,n);
   printf("%s has size %dx%d\n", name.c_str(), m, n);

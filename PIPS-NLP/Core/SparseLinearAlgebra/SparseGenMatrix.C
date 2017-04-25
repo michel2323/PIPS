@@ -513,7 +513,7 @@ void SparseGenMatrix::transCopyof(SparseGenMatrix& from)
   from.getStorageRef().transpose( this->krowM(), this->jcolM(), this->M());
 }
 
-void SparseGenMatrix::dumpMatrix(std::string name, int nchild, int giterNum) {
+void SparseGenMatrix::dumpToFile(std::string name, int nchild, int giterNum) {
   int m,n;
   this->getSize(m,n);
   printf("%s has size %dx%d\n", name.c_str(), m, n);

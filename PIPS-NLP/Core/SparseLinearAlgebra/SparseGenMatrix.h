@@ -129,7 +129,7 @@ public:
 					int rowExtent, int colExtent, int const FirstCall, std::map<int,int> &ValIdxMap );
 
   virtual void printMatrixInMatlab(char *name);
-  virtual void dumpMatrix(std::string name, int nchild, int giterNum);
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
   virtual void transCopyof(SparseGenMatrix& from);
  protected:
   // in the case of A'*A we internally form the transpose only once

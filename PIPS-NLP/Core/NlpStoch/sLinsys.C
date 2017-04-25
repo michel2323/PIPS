@@ -683,11 +683,11 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
 
 #ifdef DUMP  
   // dumping matrices
-  A.dumpMatrix("As\0", nchild, giterNum);
-  C.dumpMatrix("Cs\0", nchild, giterNum);
-  R.dumpMatrix("Rs\0", nchild, giterNum);
-  E.dumpMatrix("Es\0", nchild, giterNum);
-  F.dumpMatrix("Fs\0", nchild, giterNum);
+  A.dumpToFile("As\0", nchild, giterNum);
+  C.dumpToFile("Cs\0", nchild, giterNum);
+  R.dumpToFile("Rs\0", nchild, giterNum);
+  E.dumpToFile("Es\0", nchild, giterNum);
+  F.dumpToFile("Fs\0", nchild, giterNum);
 #endif
 
   int nx0, my0, mz0;

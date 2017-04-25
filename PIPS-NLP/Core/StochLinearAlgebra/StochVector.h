@@ -11,6 +11,7 @@
 #include "StochVectorHandle.h"
 #include "OoqpVector.h"
 #include "SimpleVector.h"
+#include <sstream>
 
 #include <vector>
 
@@ -181,6 +182,8 @@ public:
   virtual void absVal(OoqpVector *vec_in);
 
   virtual void copyIntoArrayWithIndex_AggVarCon( double *ResultArray, const int *vecmap, const int length, bool isVar=true);
+	
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
   
 };
 

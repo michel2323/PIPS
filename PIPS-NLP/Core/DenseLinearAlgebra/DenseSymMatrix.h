@@ -87,7 +87,7 @@ public:
 
   virtual void atPutDiagonal( int idiag, OoqpVector& v );
   virtual void fromGetDiagonal( int idiag, OoqpVector& v );
-  virtual void dumpMatrix(std::string name, int nchild, int giterNum);
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 
   static DenseSymMatrix * randomPSD( int n, double * seed );
  

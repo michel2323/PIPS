@@ -119,7 +119,7 @@ public:
   virtual void printMatrixInMatlab(char *name);
 
   virtual void symmetrize_valonly( double *val_lower,int *goffIDX);
-  virtual void dumpMatrix(std::string name, int nchild, int giterNum);
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 
 };
 #endif
