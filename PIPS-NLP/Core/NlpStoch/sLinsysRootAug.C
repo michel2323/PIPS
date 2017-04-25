@@ -696,8 +696,14 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
   SimpleVector& ssDiag = dynamic_cast<SimpleVector&>(*sDiag);
   SimpleVector& szDiag = dynamic_cast<SimpleVector&>(*zDiag);
 #ifdef DUMP
-  sxDiag.dumpToFile()
-  sxDiag.dumpToFile("Dsx\0", gmyid, giterNum);
+  extern int gmyid;
+  extern int giterNum;
+  if(gmyid==0) {
+    sxDiag.dumpToFile("Dsx\0", gmyid, giterNum);
+    syDiag.dumpToFile("Dsy\0", gmyid, giterNum);
+    ssDiag.dumpToFile("Dss\0", gmyid, giterNum);
+    szDiag.dumpToFile("Dsz\0", gmyid, giterNum);
+  }
 #endif
 
   /////////////////////////////////////////////////////////////

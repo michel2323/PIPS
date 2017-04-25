@@ -11,6 +11,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+#include <sstream>
 
 long long SimpleVector::numberOfNonzeros()
 {
