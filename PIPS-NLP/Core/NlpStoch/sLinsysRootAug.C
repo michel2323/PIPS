@@ -699,10 +699,10 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
   extern int gmyid;
   extern int giterNum;
   if(gmyid==0) {
-    sxDiag.dumpToFile("Dsx\0", gmyid, giterNum);
-    syDiag.dumpToFile("Dsy\0", gmyid, giterNum);
-    ssDiag.dumpToFile("Dss\0", gmyid, giterNum);
-    szDiag.dumpToFile("Dsz\0", gmyid, giterNum);
+    sxDiag.dumpToFile("Dsx0\0", gmyid, giterNum);
+    syDiag.dumpToFile("Dsy0\0", gmyid, giterNum);
+    ssDiag.dumpToFile("Dss0\0", gmyid, giterNum);
+    szDiag.dumpToFile("Dsz0\0", gmyid, giterNum);
   }
 #endif
 

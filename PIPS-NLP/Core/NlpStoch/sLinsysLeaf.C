@@ -78,7 +78,7 @@ void sLinsysLeaf::setXDiagonal( OoqpVector& xdiag_ )
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  xdiag.dumpToFile("Dsx\0",gchild,giterNum);
+  xdiag.dumpToFile("Dsxs\0",gchild,giterNum);
 #endif
 }
 
@@ -90,7 +90,7 @@ void sLinsysLeaf::setSDiagonal( OoqpVector& sdiag_ )
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  sdiag.dumpToFile("Dss\0",gchild,giterNum);
+  sdiag.dumpToFile("Dsss\0",gchild,giterNum);
 #endif
 }
 
@@ -109,7 +109,7 @@ void sLinsysLeaf::setYDiagonal( OoqpVector& ydiag_ )
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  ydiag.dumpToFile("Dsy\0",gchild,giterNum);
+  ydiag.dumpToFile("Dsys\0",gchild,giterNum);
 #endif
 }
 
@@ -128,7 +128,7 @@ void sLinsysLeaf::setZDiagonal( OoqpVector& zdiag_)
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  zdiag.dumpToFile("Dsz\0",gchild,giterNum);
+  zdiag.dumpToFile("Dszs\0",gchild,giterNum);
 #endif
 }
 

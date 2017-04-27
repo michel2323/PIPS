@@ -493,12 +493,20 @@ void sLinsys::addLnizi(sData *prob, OoqpVector& z0_, OoqpVector& zi_)
 void sLinsys::solveCompressed( OoqpVector& rhs_ )
 {
   StochVector& rhs = dynamic_cast<StochVector&>(rhs_);
+#ifdef DUMP
+  extern int gmyid;
+  extern int giterNum;
+  rhs.dumpToFile("RHS\0", gmyid, giterNum);
+#endif
 #ifdef TIMING
   //double tTot=MPI_Wtime();
 #endif
   Lsolve (data,rhs); 
   Dsolve (data,rhs);
   Ltsolve(data,rhs);
+#ifdef DUMP
+  rhs.dumpToFile("SOL\0", gmyid, giterNum);
+#endif
 #ifdef TIMING
   //cout << "SolveCompressed took: " << (MPI_Wtime()-tTot) << endl;
 #endif
@@ -667,7 +675,6 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
   SparseGenMatrix& C = prob->getLocalC();
   SparseGenMatrix& R = prob->getLocalCrossHessian();
   
-  printf("addTermToDense children\n");
   int N, nxP, NP,mR,nR;
   int locns = locmz;
   

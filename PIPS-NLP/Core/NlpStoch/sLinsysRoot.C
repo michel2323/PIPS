@@ -593,8 +593,13 @@ void sLinsysRoot::setXDiagonal( OoqpVector& xdiag_ )
   xDiag = xdiag.vec;
  
   // propagate it to the subtree
-  for(size_t it=0; it<children.size(); it++)
+  for(size_t it=0; it<children.size(); it++) {
+#ifdef DUMP
+    extern int gchild;
+    gchild=it;
+#endif
     children[it]->setXDiagonal(*xdiag.children[it]);
+  }
 }
 
 void sLinsysRoot::setSDiagonal( OoqpVector& sdiag_ )
@@ -606,8 +611,13 @@ void sLinsysRoot::setSDiagonal( OoqpVector& sdiag_ )
   sDiag = sdiag.vec;
  
   // propagate it to the subtree
-  for(size_t it=0; it<children.size(); it++)
+  for(size_t it=0; it<children.size(); it++) {
+#ifdef DUMP
+    extern int gchild;
+    gchild=it;
+#endif
     children[it]->setSDiagonal(*sdiag.children[it]);
+  }
 }
 
 void sLinsysRoot::setYDiagonal( OoqpVector& ydiag_ )
@@ -618,8 +628,13 @@ void sLinsysRoot::setYDiagonal( OoqpVector& ydiag_ )
   yDiag = ydiag.vec;
 
   // propagate it to the subtree
-  for(size_t it=0; it<children.size(); it++)
+  for(size_t it=0; it<children.size(); it++) {
+#ifdef DUMP
+    extern int gchild;
+    gchild=it;
+#endif
     children[it]->setYDiagonal(*ydiag.children[it]);
+  }
 }
 
 
@@ -631,8 +646,13 @@ void sLinsysRoot::setZDiagonal( OoqpVector& zdiag_ )
   zDiag = zdiag.vec;
 
   // propagate it to the subtree
-  for(size_t it=0; it<children.size(); it++)
+  for(size_t it=0; it<children.size(); it++) {
+#ifdef DUMP
+    extern int gchild;
+    gchild=it;
+#endif
     children[it]->setZDiagonal(*zdiag.children[it]);
+  }
 }
 
 
