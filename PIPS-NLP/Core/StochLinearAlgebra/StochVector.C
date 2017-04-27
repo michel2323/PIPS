@@ -1059,14 +1059,14 @@ void StochVector::copyIntoArrayFromTo( double *w, int VStart, int VEnd, int Wsta
   for(size_t it=0; it<children.size(); it++){
     int childLength = children[it]->length();
     children[it]->copyIntoArrayFromTo(w,0,childLength,wStartTemp,wEndTemp);
-	wStartTemp += childLength;
+    wStartTemp += childLength;
   }
 
   if(iAmDistrib) {
   	double *buffer = new double[n]; 
-	MPI_Reduce(w, buffer, n, MPI_DOUBLE, MPI_SUM, 0, mpiComm);
-	memcpy(w,buffer,n*sizeof(double));
-	delete[] buffer;
+    MPI_Reduce(w, buffer, n, MPI_DOUBLE, MPI_SUM, 0, mpiComm);
+    memcpy(w,buffer,n*sizeof(double));
+    delete[] buffer;
   }
 
   int vecLength = vec->length();
@@ -1146,5 +1146,6 @@ void StochVector::dumpToFile(std::string name, int nchild, int giterNum) {
   fwrite(&n, sizeof(int), 1, fp);
   fwrite(&ione, sizeof(int), 1, fp);
   fwrite(A, sizeof(double), n, fp);
+  fclose(fp);
   delete [] A;
 }

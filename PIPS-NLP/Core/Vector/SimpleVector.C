@@ -903,5 +903,6 @@ void SimpleVector::dumpToFile(std::string name, int nchild, int giterNum) {
   fwrite(&n, sizeof(int), 1, fp);
   fwrite(&ione, sizeof(int), 1, fp);
   fwrite(A, sizeof(double), n, fp);
+  fclose(fp);
   delete [] A;
 }

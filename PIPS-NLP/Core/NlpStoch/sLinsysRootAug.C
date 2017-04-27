@@ -748,13 +748,7 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
   extern int gmyid;
   extern int giterNum;
   if(gmyid==0) {
-  (prob->getLocalQ()).dumpToFile("Q0\0", gmyid, giterNum);
-  (prob->getLocalB()).dumpToFile("B0\0", gmyid, giterNum);
-  (prob->getLocalC()).dumpToFile("C0\0", gmyid, giterNum);
-  (prob->getLocalD()).dumpToFile("D0\0", gmyid, giterNum);
-  (prob->getLocalE()).dumpToFile("E0\0", gmyid, giterNum);
-  (prob->getLocalF()).dumpToFile("F0\0", gmyid, giterNum);
-  //kktd->dumpMatrix("KKT\0", 0, giterNum);
+  kktd->dumpToFile("KKT\0", 0, giterNum);
 }
 #endif
 

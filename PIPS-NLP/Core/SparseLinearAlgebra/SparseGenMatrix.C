@@ -533,5 +533,6 @@ void SparseGenMatrix::dumpToFile(std::string name, int nchild, int giterNum) {
   fwrite(&m, sizeof(int), 1, fp);
   fwrite(&n, sizeof(int), 1, fp);
   fwrite(A, sizeof(double), m*n, fp);
+  fclose(fp);
   delete [] A;
 }

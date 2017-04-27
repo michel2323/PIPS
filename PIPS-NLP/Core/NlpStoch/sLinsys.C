@@ -496,7 +496,7 @@ void sLinsys::solveCompressed( OoqpVector& rhs_ )
 #ifdef DUMP
   extern int gmyid;
   extern int giterNum;
-  rhs.dumpToFile("RHS\0", gmyid, giterNum);
+  if(gmyid==0) rhs.dumpToFile("RHS\0", gmyid, giterNum);
 #endif
 #ifdef TIMING
   //double tTot=MPI_Wtime();
@@ -505,7 +505,7 @@ void sLinsys::solveCompressed( OoqpVector& rhs_ )
   Dsolve (data,rhs);
   Ltsolve(data,rhs);
 #ifdef DUMP
-  rhs.dumpToFile("SOL\0", gmyid, giterNum);
+  if(gmyid==0) rhs.dumpToFile("SOL\0", gmyid, giterNum);
 #endif
 #ifdef TIMING
   //cout << "SolveCompressed took: " << (MPI_Wtime()-tTot) << endl;
