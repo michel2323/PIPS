@@ -2,6 +2,7 @@
  * Authors: E. Michael Gertz, Stephen J. Wright                       *
  * (C) 2001 University of Chicago. See Copyright Notification in OOQP */
 /* 2015. Modified by Nai-Yuan Chiang for NLP*/
+
 #include "../../global_var.h"
 #include <omp.h>
 #include "DeSymIndefSolver.h"
@@ -11,7 +12,7 @@
 #include "DenseSymMatrix.h"
 #include "DenseGenMatrix.h"
 #include "stdlib.h"
-#include <cmath>
+
 
 #ifdef WITH_MA27
 #include "Ma27Solver.h"
@@ -26,7 +27,6 @@ extern "C" void pardiso     (void   *, int    *,   int *, int *,    int *, int *
                   double *, int    *,    int *, int *,   int *, int *,
                      int *, double *, double *, int *, double *);
 #endif
-
 
 extern double gHSL_PivotLV;
 extern int gSymLinearAlgSolverForDense;
@@ -109,7 +109,7 @@ DeSymIndefSolver::DeSymIndefSolver( SparseSymMatrix * sm )
 int DeSymIndefSolver::matrixChanged()
 {
   int n = mStorage->n;
-if(gSymLinearAlgSolverForDense==1){
+  /* If matrix is dense use LAPACK, not MA57 */
   char fortranUplo = 'U';
   int info;
   
@@ -130,7 +130,6 @@ if(gSymLinearAlgSolverForDense==1){
   //query the size of workspace
   lwork=-1;
   double lworkNew;
-
   FNAME(dsytrf)( &fortranUplo, &n, &mStorage->M[0][0], &n,
 	   ipiv, &lworkNew, &lwork, &info );
   
@@ -138,16 +137,23 @@ if(gSymLinearAlgSolverForDense==1){
   if(work) delete[] work;
   work = new double[lwork];
 
+
 #ifdef TIMING_FLOPS
   HPM_Start("DSYTRFFact");
 #endif
 
   //factorize
-  if(gmyid==0) {
-    printf("OMP_NUM_PROCS: %d\n", omp_get_num_procs());
-    printf("OMP_GET_MAX_THREADS: %d\n", omp_get_max_threads());
-    printf("On node ranks: %d\n", gnprocs_node);
-  }
+  //if(gmyid==0) {
+    //printf("OMP_NUM_PROCS: %d\n", omp_get_num_procs());
+    //printf("OMP_GET_MAX_THREADS: %d\n", omp_get_max_threads());
+    //printf("On node ranks: %d\n", gnprocs_node);
+  //}
+
+  /* Create MPI windows used for the scatter of the factorization result. One
+   * MPI rank does the factorization and distributes the result through the
+   * windows
+   */
+
   if(gwindow==NULL) {
     if(gmyid_node==0) {
       gwindow=new double[n*n];
@@ -174,6 +180,7 @@ if(gSymLinearAlgSolverForDense==1){
   } 
 #endif
   if(gmyid_node==0) {
+    /* rank 0 does the factorization */
     FNAME(dsytrf)( &fortranUplo, &n, &mStorage->M[0][0], &n,
       ipiv, work, &lwork, &info );
     //  printf("gwindow on 0 before: %lf %d %d\n", gwindow[0],gipiv[0],info);
@@ -187,6 +194,7 @@ if(gSymLinearAlgSolverForDense==1){
     MPI_Win_fence(0,gwin_ipiv);
   }
   else {
+    /* All other ranks get the result from rank 0 */
     //printf("gwindow on other before: %lf %d %d\n", mStorage->M[0][0], ipiv[0], info);
     MPI_Win_fence(0,gwin);
     MPI_Win_fence(0,gwin_ipiv);
@@ -203,7 +211,7 @@ if(gSymLinearAlgSolverForDense==1){
 #endif
   if(info!=0)
       printf("DeSymIndefSolver::matrixChanged : error - dsytrf returned info=%d\n", info);
-
+/* Compute the inertia. Only negative eigenvalues are returned */
 negEigVal=0;
 double t=0;
 for(int k=0; k<n; k++) {
@@ -224,192 +232,7 @@ for(int k=0; k<n; k++) {
     break;
   }
 }
-  return negEigVal;
-
-//*********************************************************************************
-}
-else {
-  if(gSymLinearAlgSolverForDense<1){
-//*********************************************************************************
-  // we use MA57 or MA27 to find inertia
-  negEigVal=0;
-  
-  if(n>1){
-	int     icntlTemp[30];
-    double  cntlTemp[5];
-    int     infoTemp[40];	
-    double  rinfoTemp[20];
-    double  ipessimism = 1.4;
-    double  rpessimism = 1.4;
-
-    int	   lkeepTemp;
-    int	   lifactTemp, lfactTemp;
-	int   *keepTemp, *iworkTemp;
-	int    nsteps;
-	double *factTemp;
-	int *ifactTemp, *iworkTemp2;
-
-#ifdef WITH_MA27		
-	  FNAME(ma27id)( icntlTemp,cntlTemp );
-	  
-	  icntlTemp[1-1] = 0;	// don't print warning messages
-	  icntlTemp[2-1] = 0;	// no Warning messages
-	  
-      cntlTemp[0] = gHSL_PivotLV;
-	  cntlTemp[1] = 1.e-20;	  
-
-	  // set array lengths as recommended in ma27 docs
-  	  lkeepTemp = (int)(1.3 * (2*nnzWrk + 3*n + 1));
-  	  keepTemp = new int[lkeepTemp];
-
-  	  // define ikeep (which stores the pivot sequence)
-  	  int *ikeepTemp = new int[3*n];
-  	  iworkTemp = new int[2*n];
-	  
- 	  // set iflag to zero to make ma27ad choose a pivot order.
-  	  int iflag = 0, maxfrt;
-
-  	  double ops;
-  	  FNAME(ma27ad)( &n, &nnzWrk, rowM, colM, keepTemp, &lkeepTemp, ikeepTemp, iworkTemp, &nsteps, &iflag,
-	   		icntlTemp, cntlTemp, infoTemp, &ops);
-
-  	  lfactTemp  = infoTemp[4];
-  	  factTemp	 = new double[lfactTemp];
-  	  lifactTemp = infoTemp[5];
-  	  ifactTemp  = new int[lifactTemp];	  
-  	  iworkTemp2 = new int[n];
-
-  	  for (int i=0; i<nnzWrk; i++) factTemp[i] = elesM[i];
-  	  for (int i = nnzWrk; i<lfactTemp; i++) factTemp[i] = 0.0;	  
-	 
-      FNAME(ma27bd)( &n, &nnzWrk, rowM, colM, factTemp, &lfactTemp, ifactTemp, &lifactTemp, ikeepTemp,
-	     &nsteps,  &maxfrt, iworkTemp2, icntlTemp, cntlTemp,  infoTemp );  
-	  
-      if( infoTemp[0] == 0 ){
-		  negEigVal = infoTemp[15-1]; 
-	  }else if (infoTemp[0] == 4){
-		  negEigVal = -1; 
-	  }else{ 
-  	  	cout << "ma27bd: Factorization Fails: info[0]=: " << infoTemp[0] << endl;
-//        assert(false);
-      }	
-	  
-	  delete [] ikeepTemp ;
-#else
-	  assert("ma27 not defined"&&0);
-#endif		
-
-	delete [] iworkTemp2 ;
-	delete [] ifactTemp ;
-	delete [] factTemp ;
-	delete [] iworkTemp ;
-	delete [] keepTemp ;
-  }
-  else{
-	assert(n==1);
-	if(mStorage->M[0][0]<0) negEigVal=1;	
-  }
-  
-//*********************************************************************************
-}
-else{
-//*********************************************************************************
-#ifdef WITH_PARDISO
-  // we use Pardiso to find inertia
-  void  *pt[64]; 
-  int iparm[64];
-  int num_threads;
-  double dparm[64];
-  
-  //*********************************************************************************
-    int nnzWrk = (1+n)*n/2;;
-    int *rowStartM;  
-    int *rowM = (int*) malloc (nnzWrk*sizeof(int));
-    int *colM = (int*) malloc (nnzWrk*sizeof(int));
-    double *elesM = (double*) malloc (nnzWrk*sizeof(double));
-    int findNz=0;
-  
-    for(int rowID=0;rowID<n;rowID++){
-  	for(int colID=0;colID<n;colID++){
-  	  if(rowID>=colID){
-  		rowM[findNz] = rowID+1;
-  		colM[findNz] = colID+1;
-  		elesM[findNz]= mStorage->M[rowID][colID];
-  		findNz++;
-  	  }
-  	}
-  	if(gSymLinearAlgSolverForDense>1)
-  	  rowStartM[rowID+1] = findNz+1;
-    }  
-    assert(findNz==nnzWrk);
-    if(gSymLinearAlgSolverForDense>1) assert(rowStartM[n]-1==nnzWrk);
-  //*********************************************************************************
-
-
-  /* Numbers of processors, value of OMP_NUM_THREADS */
-  char *var = getenv("OMP_NUM_THREADS");
-  if(var != NULL)
-    sscanf( var, "%d", &num_threads );
-  else {
-    printf("Set environment OMP_NUM_THREADS");
-    exit(1);
-  }  
-
-  negEigVal=0;
-
-  if(n>1){
-    int solverInfo=0, mtype=-2, error;
-    pardisoinit (pt,  &mtype, &solverInfo, iparm, dparm, &error); 
-    if (error!=0) {
-      cout << "PardisoSolver ERROR during pardisoinit:" << error << "." << endl;
-      assert(false);
-    }
-  
-    int phase = 12; //Analysis, numerical factorization
-    int maxfct=1; //max number of fact having same sparsity pattern to keep at the same time
-    int mnum=1; //actual matrix (as in index from 1 to maxfct)
-    int nrhs=1;
-    int msglvl=0; //messaging level
-    int error2,  mtype2=-2;
-
-    iparm[2] = num_threads;
-    iparm[1] = 2; // 2 is for metis, 0 for min degree 
-    iparm[10] = 1; // scaling for IPM KKT; used with IPARM(13)=1 or 2
-    iparm[12] = 2; // improved accuracy for IPM KKT; used with IPARM(11)=1; 
-                 // if needed, use 2 for advanced matchings and higer accuracy.
-    iparm[30] = 0; // do not specify sparse rhs at this point
-
-    pardiso (pt , &maxfct , &mnum, &mtype2, &phase,
-	   &n, elesM, rowStartM, colM,
-	   NULL, &nrhs,
-	   iparm, &msglvl, NULL, NULL, &error2, dparm );
-    if ( error2 != 0) {
-      printf ("PardisoSolver - ERROR during factorization: %d\n", error2 );
-     assert(false);
-    }
-
-	negEigVal = iparm[22];
-  }
-  else{
-	assert(n==1);
-	if(mStorage->M[0][0]<0)
-	  negEigVal=1;	
-  }
-
-  free(rowStartM);
-  free (rowM);
-  free (colM);
-  free (elesM);
-
-#else
-	  assert("pardiso not defined"&&0);
-#endif  
-}
-}
-//*********************************************************************************
-
-  return negEigVal;
-
+return negEigVal;
 }
 
 void DeSymIndefSolver::solve ( OoqpVector& v )

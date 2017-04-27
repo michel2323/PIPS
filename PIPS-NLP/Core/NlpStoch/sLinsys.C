@@ -689,6 +689,7 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
   FT.transCopyof(F);
 
 #ifdef DUMP  
+  extern int giterNum;
   // dumping matrices
   A.dumpToFile("As\0", nchild, giterNum);
   C.dumpToFile("Cs\0", nchild, giterNum);

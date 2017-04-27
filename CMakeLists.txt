@@ -12,7 +12,6 @@ if(CMAKE_BUILD_TYPE)
   message("CMake build type is ${CMAKE_BUILD_TYPE}")
   message("Build type default flags are: ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}")
-
 else()
   message("CMAKE_BUILD_TYPE not set!")
 endif(CMAKE_BUILD_TYPE)
@@ -44,7 +43,7 @@ endif()
 option(WITH_MAKETEST "Enable 'make test'" ON)
 
 #with NLP profile metric
-option(WITH_NLPTIMING "Build with timing for PIPS-NLP" ON)
+option(WITH_NLPTIMING "Build with timing for PIPS-NLP" OFF)
 option(WITH_VERBOSE "Build with extra verbosity level" OFF)
 if(WITH_NLPTIMING)
 	add_definitions(-DNLPTIMING)
@@ -169,9 +168,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	set(CMAKE_CXX_COMPILER "mpicxx")
 	set(IS_MACOS TRUE)
 endif(${CMAKE_SYSTEM_NAME} MATCHES "BlueGeneP-static")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
-add_definitions(-DTIMING -DSTOCH_TESTING)
+#add_definitions(-DTIMING -DSTOCH_TESTING)
 
 # inspired by elemental-bgp
 if(MATH_LIBS)
@@ -288,7 +286,6 @@ if(BUILD_PIPS_IPM OR BUILD_PIPS_NLP)
 
   #MA86 is not needed at this time
   #find_library(MA86_LIBRARY hsl_ma86 PATHS ${MA86_DIR}/lib)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 
   #PARDISO Solver
   set(PARDISO_DIR ${SHARED_DIR}/PARDISO/src)
