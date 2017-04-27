@@ -1947,10 +1947,10 @@ void SparseStorage:: fromGetDense_withMap( int row, int col, double * A,
   }
 }
 
-void SparseStorage::dumpMatrix(std::string name, int nchild, int giterNum) {
+void SparseStorage::dumpToFile(std::string name, int nchild, int giterNum) {
   int m,n;
   this->getSize(m,n);
-  printf("%s has size %dx%d\n", name.c_str(), m, n);
+  printf("%s (this matrix has to be symmetric!!!) has size %dx%d\n", name.c_str(), m, n);
   if(n==0 || m==0) {
     printf("Size is zero. No output.\n");
     return;
@@ -1964,6 +1964,12 @@ void SparseStorage::dumpMatrix(std::string name, int nchild, int giterNum) {
   if(m>n) lda=m;
   else lda=n;
   this->fromGetDense(0, 0, A, lda, m, n);
+	// Fill matrix
+	for(int i=0;i<m;i++) {
+		for(int j=i+1;j<n;j++) {
+			A[i*n+j]=A[j*n+i];
+		}
+	}
   fwrite(&m, sizeof(int), 1, fp);
   fwrite(&n, sizeof(int), 1, fp);
   fwrite(A, sizeof(double), m*n, fp);

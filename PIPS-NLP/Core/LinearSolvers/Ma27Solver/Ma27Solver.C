@@ -412,6 +412,9 @@ Ma27SolverBase::~Ma27SolverBase()
   delete [] w;
 }
 
+void MA27Solver::dumpToFile(std::string name, int nchild, int giterNum) {
+  mMat->dumpToFile(name,nchild,giterNum);
+}
 
 
 

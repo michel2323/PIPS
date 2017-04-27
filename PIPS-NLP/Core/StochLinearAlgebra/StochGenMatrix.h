@@ -11,6 +11,7 @@
 #include "DoubleMatrix.h"
 #include "SparseGenMatrix.h"
 #include <vector>
+#include <sstream>
 #include "mpi.h"
 
 
@@ -132,6 +133,8 @@ public:
   virtual void copyMtxFromDouble(int copyLength,double *values){assert( "Has not been yet implemented" && 0 );};
 
   virtual void setAdditiveDiagonal(OoqpVector& v );
+  
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 
 
 };
@@ -227,6 +230,7 @@ public:
   virtual void copyMtxFromDouble(int copyLength,double *values){assert( "Has not been yet implemented" && 0 );};
 
   virtual void setAdditiveDiagonal(OoqpVector& v ){};
+
 
 };
 

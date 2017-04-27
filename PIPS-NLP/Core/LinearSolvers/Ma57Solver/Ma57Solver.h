@@ -133,6 +133,7 @@ public:
   virtual int matrixChanged();
   virtual void solve( OoqpVector& rhs );
   virtual void solve( GenMatrix& rhs);
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 
   //virtual void Lsolve  ( OoqpVector& x );
   //virtual void Dsolve  ( OoqpVector& x );

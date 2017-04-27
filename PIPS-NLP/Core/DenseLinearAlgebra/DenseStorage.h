@@ -7,6 +7,7 @@
 
 #include "DoubleMatrix.h"
 #include "DenseStorageHandle.h"
+#include <sstream>
 
 extern int DenseStorageInstances;
 
@@ -68,6 +69,7 @@ public:
   virtual void atPutDiagonal(   int idiag, OoqpVector& v );
   virtual void fromGetDiagonal( int idiag, OoqpVector& v );
   virtual void atPutDiagonal( int idiag, double x[], int incx, int extent );
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 };
   
 #endif

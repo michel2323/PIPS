@@ -27,6 +27,11 @@ int sLinsysLeaf::factor2(sData *prob, Variables *vars)
   // Diagonals were already updated, so
   // just trigger a local refactorization (if needed, depends on the type of lin solver).
   stochNode->resMon.recFactTmLocal_start();
+#ifdef DUMP
+  extern int giterNum;
+  extern int gchild;
+  solver->dumpToFile("Ws\0",gchild,giterNum);
+#endif
   negEValTemp = solver->matrixChanged();
   stochNode->resMon.recFactTmLocal_stop();
   return negEValTemp;
@@ -278,9 +283,10 @@ sLinsysLeaf::UpdateMatrices( Data * prob_in,int const updateLevel)
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  (prob->getLocalQ()).dumpToFile("Qs\0",gchild,giterNum);
-  (prob->getLocalB()).dumpToFile("Bs\0",gchild,giterNum);
-  (prob->getLocalD()).dumpToFile("Ds\0",gchild,giterNum);
+  // (prob->getLocalQ()).dumpToFile("Qs\0",gchild,giterNum);
+  // (prob->getLocalB()).dumpToFile("Bs\0",gchild,giterNum);
+  // (prob->getLocalD()).dumpToFile("Ds\0",gchild,giterNum);
+  
 #endif
 	firstQUpdate = false;
 	firstBUpdate = false;

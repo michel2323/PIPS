@@ -51,6 +51,8 @@ public:
   virtual void Lsolve  ( OoqpVector& x ) {}
   virtual void Dsolve  ( OoqpVector& x ) { solve(x);}
   virtual void Ltsolve ( OoqpVector& x ) {}
+  
+  virtual void dumpToFile(std::string name, int nchild, int giterNum)=0;
 
   /** Destructor  */
   virtual ~DoubleLinearSolver() {};

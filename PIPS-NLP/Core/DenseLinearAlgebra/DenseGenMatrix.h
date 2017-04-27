@@ -8,6 +8,7 @@
 #include "DoubleMatrix.h"
 #include "DenseStorage.h"
 #include "DenseGenMatrixHandle.h"
+#include <sstream>
 
 class DoubleLinearSolver;
 
@@ -111,6 +112,7 @@ public:
 		       DenseGenMatrix& A, int transA, 
 		       DenseGenMatrix& B, int transB,
 		       double beta);
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 
 };
 

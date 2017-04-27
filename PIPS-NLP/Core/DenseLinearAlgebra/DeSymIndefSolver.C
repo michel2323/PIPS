@@ -306,3 +306,7 @@ DeSymIndefSolver::~DeSymIndefSolver()
   delete[] ipiv;
   if(work) delete[] work;
 }
+
+void DeSymIndefSolver::dumpToFile(std::string name, int nchild, int giterNum) {
+  mStorage->dumpToFile(name,nchild,giterNum);
+}

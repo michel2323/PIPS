@@ -177,7 +177,7 @@ public:
 				       int rowExtent, int colExtent, int const FirstCall, std::map<int,int> &ValIdxMap ); 
 
   virtual void shiftRows_CorrectMap( int row, int shift, int& info, std::map<int,int> &ValIdxMap ); 
-  virtual void dumpMatrix(std::string name, int nchild, int giterNum);
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 
 };
 

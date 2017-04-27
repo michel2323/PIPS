@@ -362,3 +362,28 @@ void DenseGenMatrix::matMult(double alpha,
   //	    &x[0], &incx, &beta, &y[0], &incy );
 
 }
+
+void DenseGenMatrix::dumpToFile(std::string name, int nchild, int giterNum) {
+  int m,n;
+  this->getSize(m,n);
+  printf("%s has size %dx%d\n", name.c_str(), m, n);
+  if(n==0 || m==0) {
+    printf("Size is zero. No output.\n");
+    return;
+  }
+  double *A=new double[m*n];
+  std::stringstream fname;
+  fname << "global" << name << nchild << "_" << giterNum << ".dmp";
+  //std::string sfname=fname.std();
+  FILE *fp=fopen((fname.str()).c_str(),"w");
+  int lda;
+  if(m>n) lda=m;
+  else lda=n;
+  this->fromGetDense(0, 0, A, lda, m, n);
+  fwrite(&m, sizeof(int), 1, fp);
+  fwrite(&n, sizeof(int), 1, fp);
+  fwrite(A, sizeof(double), m*n, fp);
+  fclose(fp);
+  delete [] A;
+}
+

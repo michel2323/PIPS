@@ -30,6 +30,8 @@ public:
   virtual void solve ( OoqpVector& vec );
   virtual void solve ( GenMatrix& vec );
   virtual ~DeSymIndefSolver();
+  
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 };
 
 #endif

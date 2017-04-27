@@ -99,6 +99,8 @@ public:
 
   virtual void copyDiagonalVal_FromcopyDiagonalVal_From( int idiag, OoqpVector& v, 
 							bool firstCall, std::map<int,int> &ValIdxMap );
+              
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 
  protected:
   StochSymMatrix* parent;

@@ -179,6 +179,7 @@ public:
   virtual int * krowM() { assert(0); };
   virtual int * jcolM() { assert(0);};
   virtual double * M() { assert(0); }; 
+  virtual void dumpToFile(std::string name, int nchild, int giterNum)=0;
   
 };
 
@@ -233,6 +234,7 @@ public:
   virtual void symAtSetSubmatrix( int destRow, int destCol, DoubleMatrix& M,
 			   int srcRow, int srcCol,
 			   int rowExtent, int colExtent,bool firstCall, std::map<int,int> &ValIdxMap ){assert("not yet" && 0);};
+         
 };
 
 /** Parent of all non-symmetric, possibly non-square, matrices.

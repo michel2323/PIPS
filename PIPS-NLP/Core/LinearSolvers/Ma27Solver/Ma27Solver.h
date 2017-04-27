@@ -202,6 +202,7 @@ public:
    * @param jcolM array of nnz elements indicating col index (in range
    * 1..n) of the corresponding matrix element */
   virtual void getIndices( int irowM[], int jcolM[] );
+  virtual void dumpToFile(std::string name, int nchild, int giterNum);
 
   /** version of the main solve routine that takes argument as an
    * OoqpVector

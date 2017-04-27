@@ -441,3 +441,7 @@ double* Ma57Solver::new_dworkn(int dim)
   }
   return dworkn;
 }
+
+void Ma57Solver::dumpToFile(std::string name, int nchild, int giterNum) {
+  mStorage->dumpToFile(name,nchild,giterNum);
+}
