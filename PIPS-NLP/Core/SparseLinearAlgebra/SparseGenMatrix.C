@@ -516,19 +516,20 @@ void SparseGenMatrix::transCopyof(SparseGenMatrix& from)
 void SparseGenMatrix::dumpToFile(std::string name, int nchild, int giterNum) {
   int m,n;
   this->getSize(m,n);
-  printf("%s has size %dx%d\n", name.c_str(), m, n);
+  int lda;
+  if(m>n) lda=m;
+  else lda=n;
+  printf("SparseGenMatrix %s has size %dx%d\n", name.c_str(), m, n);
   if(n==0 || m==0) {
     printf("Size is zero. No output.\n");
     return;
   }
-  double *A=new double[m*n];
+  // double *A=new double[m*n];
+  double *A=new double[lda*lda];
   std::stringstream fname;
   fname << "global" << name << nchild << "_" << giterNum << ".dmp";
   //std::string sfname=fname.std();
   FILE *fp=fopen((fname.str()).c_str(),"w");
-  int lda;
-  if(m>n) lda=m;
-  else lda=n;
   this->fromGetDense(0, 0, A, lda, m, n);
   fwrite(&m, sizeof(int), 1, fp);
   fwrite(&n, sizeof(int), 1, fp);
