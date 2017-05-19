@@ -8,6 +8,7 @@
 #include "./Core/Utilities/PerfMetrics.h"
 #ifdef DUMP 
 extern int gchild;
+extern int nchild;
 #endif
 extern int gmyid;
 extern int gnprocs;

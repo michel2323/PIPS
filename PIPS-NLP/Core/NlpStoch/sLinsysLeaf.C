@@ -29,10 +29,20 @@ int sLinsysLeaf::factor2(sData *prob, Variables *vars)
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  solver->dumpToFile("Ws\0",gchild,giterNum);
-  (prob->getLocalQ()).dumpToFile("Qs\0",gchild,giterNum);
-  (prob->getLocalB()).dumpToFile("Bs\0",gchild,giterNum);
-  (prob->getLocalD()).dumpToFile("Ds\0",gchild,giterNum);
+  extern int nchild;
+  static int cchild=0;
+  static int literNum=0;
+  if(literNum!=giterNum) {
+    solver->dumpToFile("Ws\0",gchild,giterNum);
+    (prob->getLocalQ()).dumpToFile("Qs\0",gchild,giterNum);
+    (prob->getLocalB()).dumpToFile("Bs\0",gchild,giterNum);
+    (prob->getLocalD()).dumpToFile("Ds\0",gchild,giterNum);
+    cchild++;
+    if(cchild==nchild) {
+      literNum=giterNum;
+      cchild=0;
+    }
+  }
 #endif
   stochNode->resMon.recFactTmLocal_start();
   negEValTemp = solver->matrixChanged();
@@ -86,7 +96,17 @@ void sLinsysLeaf::setXDiagonal( OoqpVector& xdiag_ )
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  xdiag.dumpToFile("Dsxs\0",gchild,giterNum);
+  static int cchild=0;
+  extern int nchild;
+  static int literNum=0;
+  if(literNum!=giterNum) {
+    xdiag.dumpToFile("Dsxs\0",gchild,giterNum);
+    cchild++;
+     if(cchild==nchild) {
+       literNum=giterNum;
+       cchild=0;
+     }
+   }
 #endif
 }
 
@@ -98,7 +118,17 @@ void sLinsysLeaf::setSDiagonal( OoqpVector& sdiag_ )
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  sdiag.dumpToFile("Dsss\0",gchild,giterNum);
+  extern int nchild;
+  static int cchild=0;
+  static int literNum=0;
+  if(literNum!=giterNum) {
+    sdiag.dumpToFile("Dsss\0",gchild,giterNum);
+    cchild++;
+    if(cchild==nchild) {
+      literNum=giterNum;
+      cchild=0;
+    }
+  }
 #endif
 }
 
@@ -117,7 +147,17 @@ void sLinsysLeaf::setYDiagonal( OoqpVector& ydiag_ )
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  ydiag.dumpToFile("Dsys\0",gchild,giterNum);
+  extern int nchild;
+  static int cchild=0;
+  static int literNum=0;
+  if(literNum!=giterNum) {
+    ydiag.dumpToFile("Dsys\0",gchild,giterNum);
+    cchild++;
+    if(cchild==nchild) {
+      literNum=giterNum;
+      cchild=0;
+    }
+  }
 #endif
 }
 
@@ -136,7 +176,17 @@ void sLinsysLeaf::setZDiagonal( OoqpVector& zdiag_)
 #ifdef DUMP
   extern int giterNum;
   extern int gchild;
-  zdiag.dumpToFile("Dszs\0",gchild,giterNum);
+  extern int nchild;
+  static int cchild=0;
+  static int literNum=0;
+  if(literNum!=giterNum) {
+    zdiag.dumpToFile("Dszs\0",gchild,giterNum);
+    cchild++;
+    if(cchild==nchild) {
+      literNum=giterNum;
+      cchild=0;
+    }
+  }
 #endif
 }
 

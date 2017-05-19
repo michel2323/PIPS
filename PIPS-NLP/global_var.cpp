@@ -18,6 +18,7 @@ MPI_Win gwin;
 MPI_Win gwin_ipiv;
 #ifdef DUMP 
 int gchild;
+int nchild;
 #endif
 #ifdef NLPTIMING
 PerfMetrics gprof = PerfMetrics::getPerfMetrics();

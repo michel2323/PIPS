@@ -496,7 +496,10 @@ void sLinsys::solveCompressed( OoqpVector& rhs_ )
 #ifdef DUMP
   extern int gmyid;
   extern int giterNum;
-  if(gmyid==0) rhs.dumpToFile("RHS\0", gmyid, giterNum);
+  static int literNum=0;
+  if(literNum!=giterNum) {
+    if(gmyid==0) rhs.dumpToFile("RHS\0", gmyid, giterNum);
+  }
 #endif
 #ifdef TIMING
   //double tTot=MPI_Wtime();
@@ -505,7 +508,10 @@ void sLinsys::solveCompressed( OoqpVector& rhs_ )
   Dsolve (data,rhs);
   Ltsolve(data,rhs);
 #ifdef DUMP
-  if(gmyid==0) rhs.dumpToFile("SOL\0", gmyid, giterNum);
+  if(literNum!=giterNum) {
+    literNum=giterNum;
+    if(gmyid==0) rhs.dumpToFile("SOL\0", gmyid, giterNum);
+  }
 #endif
 #ifdef TIMING
   //cout << "SolveCompressed took: " << (MPI_Wtime()-tTot) << endl;
@@ -669,7 +675,7 @@ void sLinsys::addTermToSchurResidual(sData* prob,
  */
 
 void sLinsys::addTermToDenseSchurCompl(sData *prob, 
-				       DenseSymMatrix& SC, int nchild) 
+				       DenseSymMatrix& SC, int gchild) 
 {
   SparseGenMatrix& A = prob->getLocalA();
   SparseGenMatrix& C = prob->getLocalC();
@@ -691,11 +697,21 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
 #ifdef DUMP  
   extern int giterNum;
   // dumping matrices
-  A.dumpToFile("As\0", nchild, giterNum);
-  C.dumpToFile("Cs\0", nchild, giterNum);
-  R.dumpToFile("Rs\0", nchild, giterNum);
-  E.dumpToFile("Es\0", nchild, giterNum);
-  F.dumpToFile("Fs\0", nchild, giterNum);
+  extern int nchild;
+  static int literNum=0;
+  static int cchild=0;
+  if(literNum!=giterNum) {
+    A.dumpToFile("As\0", gchild, giterNum);
+    C.dumpToFile("Cs\0", gchild, giterNum);
+    R.dumpToFile("Rs\0", gchild, giterNum);
+    E.dumpToFile("Es\0", gchild, giterNum);
+    F.dumpToFile("Fs\0", gchild, giterNum);
+    cchild++;
+    if(cchild==nchild) {
+      literNum=giterNum;
+      cchild=0;
+    }
+  }
 #endif
 
   int nx0, my0, mz0;

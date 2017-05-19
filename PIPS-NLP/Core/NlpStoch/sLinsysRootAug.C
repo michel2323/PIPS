@@ -698,11 +698,14 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
 #ifdef DUMP
   extern int gmyid;
   extern int giterNum;
-  if(gmyid==0) {
-    sxDiag.dumpToFile("Dsx0\0", gmyid, giterNum);
-    syDiag.dumpToFile("Dsy0\0", gmyid, giterNum);
-    ssDiag.dumpToFile("Dss0\0", gmyid, giterNum);
-    szDiag.dumpToFile("Dsz0\0", gmyid, giterNum);
+  static int literNum=0;
+  if(literNum!=giterNum) {
+    if(gmyid==0) {
+      sxDiag.dumpToFile("Dsx0\0", gmyid, giterNum);
+      syDiag.dumpToFile("Dsy0\0", gmyid, giterNum);
+      ssDiag.dumpToFile("Dss0\0", gmyid, giterNum);
+      szDiag.dumpToFile("Dsz0\0", gmyid, giterNum);
+    }
   }
 #endif
 
@@ -744,15 +747,18 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
 #ifdef DUMP
   extern int gmyid;
   extern int giterNum;
-  if(gmyid==0) {
-  (prob->getLocalQ()).dumpToFile("Q0\0", gmyid, giterNum);
-  (prob->getLocalB()).dumpToFile("B0\0", gmyid, giterNum);
-  (prob->getLocalC()).dumpToFile("C0\0", gmyid, giterNum);
-  (prob->getLocalD()).dumpToFile("D0\0", gmyid, giterNum);
-  (prob->getLocalE()).dumpToFile("E0\0", gmyid, giterNum);
-  (prob->getLocalF()).dumpToFile("F0\0", gmyid, giterNum);
-  kktd->dumpToFile("KKT\0", 0, giterNum);
-}
+  if(literNum!=giterNum) {
+    literNum=giterNum;
+    if(gmyid==0) {
+      (prob->getLocalQ()).dumpToFile("Q0\0", gmyid, giterNum);
+      (prob->getLocalB()).dumpToFile("B0\0", gmyid, giterNum);
+      (prob->getLocalC()).dumpToFile("C0\0", gmyid, giterNum);
+      (prob->getLocalD()).dumpToFile("D0\0", gmyid, giterNum);
+      (prob->getLocalE()).dumpToFile("E0\0", gmyid, giterNum);
+      (prob->getLocalF()).dumpToFile("F0\0", gmyid, giterNum);
+      kktd->dumpToFile("KKT\0", 0, giterNum);
+    }
+  }
 #endif
 
 

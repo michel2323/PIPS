@@ -182,6 +182,10 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
   initializeKKT(prob, vars);
 
   // First tell children to factorize. 
+#ifdef DUMP
+  extern int nchild;
+  nchild=children.size();
+#endif
   for(size_t c=0; c<children.size(); c++) {
     #ifdef DUMP
     // matrix is dumped inside matrixChanged(). Due to code structure the child id has to be passed via 
@@ -196,7 +200,6 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
       negEVal += tempNegEVal;
     }
   }
-  printf("Children size: %lu\n", children.size());
   for(size_t c=0; c<children.size(); c++) {
 #ifdef STOCH_TESTING
     g_scenNum=c;
@@ -593,10 +596,15 @@ void sLinsysRoot::setXDiagonal( OoqpVector& xdiag_ )
   xDiag = xdiag.vec;
  
   // propagate it to the subtree
+#ifdef DUMP
+  extern int nchild;
+  nchild=children.size();
+#endif
   for(size_t it=0; it<children.size(); it++) {
 #ifdef DUMP
     extern int gchild;
     gchild=it;
+    
 #endif
     children[it]->setXDiagonal(*xdiag.children[it]);
   }
@@ -611,6 +619,10 @@ void sLinsysRoot::setSDiagonal( OoqpVector& sdiag_ )
   sDiag = sdiag.vec;
  
   // propagate it to the subtree
+#ifdef DUMP
+  extern int nchild;
+  nchild=children.size();
+#endif
   for(size_t it=0; it<children.size(); it++) {
 #ifdef DUMP
     extern int gchild;
@@ -628,6 +640,10 @@ void sLinsysRoot::setYDiagonal( OoqpVector& ydiag_ )
   yDiag = ydiag.vec;
 
   // propagate it to the subtree
+#ifdef DUMP
+  extern int nchild;
+  nchild=children.size();
+#endif
   for(size_t it=0; it<children.size(); it++) {
 #ifdef DUMP
     extern int gchild;
@@ -646,6 +662,10 @@ void sLinsysRoot::setZDiagonal( OoqpVector& zdiag_ )
   zDiag = zdiag.vec;
 
   // propagate it to the subtree
+#ifdef DUMP
+  extern int nchild;
+  nchild=children.size();
+#endif
   for(size_t it=0; it<children.size(); it++) {
 #ifdef DUMP
     extern int gchild;
@@ -944,6 +964,10 @@ sLinsysRoot::UpdateMatrices( Data * prob_in, int const updateLevel)
   }
   
   // propagate it to the subtree
+#ifdef DUMP
+  extern int nchild;
+  nchild=children.size();
+#endif
   for(size_t it=0; it<children.size(); it++) {
 #ifdef DUMP
     extern int gchild;
