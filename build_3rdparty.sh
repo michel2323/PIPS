@@ -47,6 +47,9 @@ fi
 cd ./ThirdPartyLibs/METIS
 ./wgetMETIS.sh $NUMTHREADS
 cd ../..
+cd ./ThirdPartyLibs/Elemental
+./build_elemental.sh $NUMTHREADS
+cd ../../
 
 exit 0
 
