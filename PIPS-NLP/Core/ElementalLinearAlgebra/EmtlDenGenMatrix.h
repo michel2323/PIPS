@@ -35,6 +35,7 @@ public:
 			   int& info );
 
   virtual void getSize( int& m, int& n );
+  virtual void getSize( long long& m, long long& n );
 
   virtual void atPutSubmatrix( int destRow, int destCol, DoubleMatrix& M,
 			       int srcRow, int srcCol,

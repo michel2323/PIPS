@@ -74,7 +74,7 @@ public:
 
   virtual int matchesNonZeroPattern( OoqpVector& select );
   virtual void selectNonZeros( OoqpVector& select );
-  virtual int numberOfNonzeros();
+  virtual long long numberOfNonzeros();
   virtual void addSomeConstants( double c, OoqpVector& select );
   virtual void writefSomeToStream( ostream& out,
 				   const char format[],
@@ -93,6 +93,55 @@ public:
 
   int getLocalSize() { return nr; };
   //void printout(int tag);
+  
+  /* TO BE IMPLEMENTED */
+  virtual void copyIntoArray( double v[] ) { assert( "Not implemented" && 0 ); };
+  
+  virtual void findBlockingPD(OoqpVector & wstep_vec, 
+            OoqpVector & u_vec, 
+            OoqpVector & ustep_vec, 
+            double *w_elt, 
+            double *wstep_elt,
+            double *u_elt, 
+            double *ustep_elt,
+            int& first_or_second, double * alphaPri, double * alphaDual) { assert( "Not implemented" && 0 ); };  
+  
+  virtual void print() { assert( "Not implemented" && 0 ); };
+  
+  virtual double sumLog(OoqpVector* select) { assert( "Not implemented" && 0 ); };
+  
+  virtual double sumPowElt(const double pow_in) { assert( "Not implemented" && 0 ); };
+  
+  virtual double sumElt() { assert( "Not implemented" && 0 ); };
+  
+  virtual void MinComponentOrConstant( OoqpVector* vec_in, double minVal ) { assert( "Not implemented" && 0 ); };
+  
+  virtual void MinComponentBetween( OoqpVector* vec_in, OoqpVector *select=NULL) { assert( "Not implemented" && 0 ); }; 
+
+  virtual void correctLargeVal( const double testVal, const double corVal, const int absFlag) { assert( "Not implemented" && 0 ); };
+
+  virtual void setToConstantFromTo( double c, int start, int end )  { assert( "Not implemented" && 0 ); }; 
+
+  virtual void SetComponentFromMaxXorY( OoqpVector* x_in, OoqpVector *y_in, OoqpVector *select=NULL) { assert( "Not implemented" && 0 ); };
+
+  virtual void SetComponentFromMaxXorY( OoqpVector* x_in, OoqpVector *y_in, 
+			int Start, int End,int xStart, int xEnd, int yStart, int yEnd) { assert( "Not implemented" && 0 ); };
+
+  virtual void SetComponentFromMaxXorConstant( OoqpVector* x_in, const double y_in) { assert( "Not implemented" && 0 ); };
+
+  virtual void SetComponentFromMaxXorConstant( OoqpVector* x_in, const double y_in, 
+		  int Start, int End,int xStart, int xEnd) { assert( "Not implemented" && 0 ); };
+      
+  virtual void copyFromFromTo( OoqpVector* vec_in, int VStart, int VEnd, int VinStart, int VinEnd) { assert( "Not implemented" && 0 ); };
+
+  virtual void copyFromArrayFromTo( double *w, int VStart, int VEnd, int Wstart, int Wend) { assert( "Not implemented" && 0 ); };
+
+
+  /** Return the absolute value */
+  virtual void absVal(OoqpVector *vec_in)  { assert( "Not implemented" && 0 ); };
+  
+
+
 };
 
 #endif

@@ -25,8 +25,8 @@ EmtlDenGenMatrix::EmtlDenGenMatrix( int m, int n, const EmtlContext &ctx_) :
 
     nr = A->LocalHeight();
     nc = A->LocalWidth();
-    data = A->LocalMatrix().Buffer();
-    assert(A->LocalMatrix().LDim() == nr);
+    data = A->Matrix().Buffer();
+    assert(A->Matrix().LDim() == nr);
   } else {
     data = 0;
     nr = nc = 0;
@@ -103,6 +103,12 @@ void EmtlDenGenMatrix::atPutSpRow( int col, double A[],
 }
 
 void EmtlDenGenMatrix::getSize( int& m, int& n )
+{
+  m = this->m;
+  n = this->n;
+}
+
+void EmtlDenGenMatrix::getSize( long long& m, long long& n )
 {
   m = this->m;
   n = this->n;

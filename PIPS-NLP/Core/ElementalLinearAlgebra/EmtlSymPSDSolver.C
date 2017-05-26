@@ -25,12 +25,13 @@ void EmtlSymPSDSolver::diagonalChanged( int idiag, int extent )
 }
 
 
-void EmtlSymPSDSolver::matrixChanged()
+int EmtlSymPSDSolver::matrixChanged()
 {
-  if (mat->isNoop()) return;
+  if (mat->isNoop()) return 0;
   
   DistMatrix<double,MC,MR> &A = *mat->A;
-  lapack::Chol(Lower, A);
+  Cholesky(El::LOWER, A);
+  return 0;
 }
 
 void EmtlSymPSDSolver::solve( OoqpVector& v )
@@ -45,8 +46,8 @@ void EmtlSymPSDSolver::solve( OoqpVector& v )
   getrusage( RUSAGE_SELF, &before_solve );
   */
 
-  blas::Trsv(Lower, Normal, NonUnit, A, x);
-  blas::Trsv(Lower, Transpose, NonUnit, A, x);
+  Trsv(LOWER, NORMAL, NON_UNIT, A, x);
+  Trsv(LOWER, TRANSPOSE, NON_UNIT, A, x);
   
   /*
   rusage  after_solve;

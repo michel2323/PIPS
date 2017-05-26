@@ -7,7 +7,7 @@
 #include <cassert>
 #include <sys/resource.h>
 #include <iostream>
-#include "elemental/lapack_internal.hpp"
+// #include "elemental/lapack_internal.hpp"
 
 EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenGenMatrix *mat)
 {
@@ -15,9 +15,9 @@ EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenGenMatrix *mat)
   
   mat->getSize(m,n);
   assert(m==n);
-  if (!mat->isNoop()) { 
-    p = new DistMatrix<int,VC,Star>(m,1,mat->ctx.grid());
-  } 
+  // if (!mat->isNoop()) { 
+  //   p = new DistMatrix<int,VC,STAR>(m,1,mat->ctx.grid());
+  // } 
 }
 
 EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenSymMatrix *mat_ )
@@ -27,9 +27,9 @@ EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenSymMatrix *mat_ )
   
   mat->getSize(m,n);
   assert(m==n);
-  if (!mat->isNoop()) { 
-    p = new DistMatrix<int,VC,Star>(m,1,mat->ctx.grid());
-  } 
+  // if (!mat->isNoop()) { 
+  //   p = new DistMatrix<int,VC,STAR>(m,1,mat->ctx.grid());
+  // } 
 }
 
 void EmtlGenIndefSolver::diagonalChanged( int idiag, int extent )
@@ -38,13 +38,14 @@ void EmtlGenIndefSolver::diagonalChanged( int idiag, int extent )
 }
 
 
-void EmtlGenIndefSolver::matrixChanged()
+int EmtlGenIndefSolver::matrixChanged()
 {
-  if (mat->isNoop()) return;
+  if (mat->isNoop()) return 0;
   DistMatrix<double,MC,MR> &A = *mat->A;
 
-  lapack::LU(A,*p);
+  El::LU(A,p);
   needtocompose = true;
+  return 0;
   // don't time compose pivots
   /*
   DistMatrix<int,Star,Star> p_Star_Star(mat->ctx.grid());
@@ -56,12 +57,12 @@ void EmtlGenIndefSolver::matrixChanged()
 void EmtlGenIndefSolver::solve( OoqpVector& v )
 {
   if (mat->isNoop()) return;
-  if (needtocompose) {
-    DistMatrix<int,Star,Star> p_Star_Star(mat->ctx.grid());
-    p_Star_Star = *p;
-    lapack::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
-    needtocompose = false;
-  }
+  // if (needtocompose) {
+  //   DistMatrix<int,STAR,STAR> p_Star_Star(mat->ctx.grid());
+  //   p_Star_Star = p;
+  //   lapack::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
+  //   needtocompose = false;
+  // }
   
   EmtlVector &vec = dynamic_cast<EmtlVector&>(v);
   DistMatrix<double,MC,MR> &A = *mat->A;
@@ -72,9 +73,10 @@ void EmtlGenIndefSolver::solve( OoqpVector& v )
   getrusage( RUSAGE_SELF, &before_solve );
   */
   
-  lapack::internal::ApplyRowPivots( x, image, preimage, 0 );
-  blas::Trsv( Lower, Normal, Unit, A, x );
-  blas::Trsv( Upper, Normal, NonUnit, A, x );
+  // lapack::internal::ApplyRowPivots( x, image, preimage, 0 );
+  // blas::Trsv( Lower, Normal, Unit, A, x );
+  // blas::Trsv( Upper, Normal, NonUnit, A, x );
+  El::lu::SolveAfter(El::OrientationNS::NORMAL, A, p, x);
   
   /*
   rusage  after_solve;
@@ -92,7 +94,7 @@ void EmtlGenIndefSolver::solve( OoqpVector& v )
 
 EmtlGenIndefSolver::~EmtlGenIndefSolver()
 {
-  if (!mat->isNoop()) {
-    delete p;
-  }
+  // if (!mat->isNoop()) {
+  //   delete p;
+  // }
 }

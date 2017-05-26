@@ -16,12 +16,12 @@
 
 class EmtlDenSymMatrix : public SymMatrix {
 protected:
-  int m;
+  long long m;
 public:
   EmtlDenGenMatrixHandle mat;
   const EmtlContext &ctx;
 
-  EmtlDenSymMatrix( int size, const EmtlContext &ctx_);
+  EmtlDenSymMatrix( long long size, const EmtlContext &ctx_);
   //EmtlDenSymMatrix( int lm, int ln, int size, int nnz );
 
 
@@ -38,9 +38,10 @@ public:
   virtual void fsymAtPutSpRow( int row, double A[], int lenA, int jcolA[],
 			       int& info );
 
+  virtual void getSize( long long& m, long long& n );
   virtual void getSize( int& m, int& n );
 
-  virtual int size();
+  virtual long long size();
 
   virtual void symAtPutSubmatrix( int destRow, int destCol,
 				  DoubleMatrix& M,

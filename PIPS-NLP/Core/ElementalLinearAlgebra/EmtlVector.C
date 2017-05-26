@@ -27,8 +27,8 @@ EmtlVector::EmtlVector( int m_, const EmtlContext &ctx_ ) : OoqpVector( m_ ), ct
 
     nr = A->LocalHeight();
     nc = A->LocalWidth();
-    data = A->LocalMatrix().Buffer();
-    assert(A->LocalMatrix().LDim() == nr);
+    data = A->Matrix().Buffer();
+    assert(A->Matrix().LDim() == nr);
   } else {
     data = 0;
     nr = nc = 0;
@@ -46,7 +46,7 @@ EmtlVector::~EmtlVector()
   EmtlVector::instances--;
 }
 
-int EmtlVector::numberOfNonzeros()
+long long EmtlVector::numberOfNonzeros()
 {
   int mycount = 0;
   for (int i = 0; i < nr*nc; i++)
@@ -81,12 +81,14 @@ void EmtlVector::randomize( double alpha, double beta, double * /* ix */ )
 
 void EmtlVector::copyIntoArray( double v[] ) const
 {
-  int maxsize = utilities::MaxLocalLength(m, ctx.nprow());
+  int maxsize = MaxLength(m, ctx.nprow());
+  // int maxsize = utilities::MaxLocalLength(m, ctx.nprow());
   double *buf = new double[maxsize];
   
   
   for (int row = 0; row < ctx.nprow(); row++) {
-    int nr_row = utilities::LocalLength(m, row, ctx.nprow());
+    int nr_row = Length(m, row, ctx.nprow());
+    // int nr_row = utilities::LocalLength(m, row, ctx.nprow());
     if (nr_row < 1) continue;
     int proc = ctx.get_pnum(row, 0);
     if (ctx.mype() == proc) {

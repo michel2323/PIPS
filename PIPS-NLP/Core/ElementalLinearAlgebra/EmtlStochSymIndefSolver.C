@@ -32,9 +32,9 @@ void EmtlStochSymIndefSolver::diagonalChanged( int idiag, int extent )
   AQ^(-1)A^T = (~L)(~L)^T
 */
 
-void EmtlStochSymIndefSolver::matrixChanged()
+int EmtlStochSymIndefSolver::matrixChanged()
 {
-  if (mat->isNoop()) return;
+  if (mat->isNoop()) return 0;
   
   DistMatrix<double,MC,MR> &A = *mat->A;
  
@@ -55,14 +55,15 @@ void EmtlStochSymIndefSolver::matrixChanged()
                         ABL, ABR,
                         nx);
   // replace Q with L
-  lapack::Chol(Lower, ATL);
+  Cholesky(LOWER, ATL);
   // replace A with AL^-T
-  blas::Trsm(Right, Lower, Transpose, NonUnit, 1., ATL, ABL);
+  Trsm(RIGHT, LOWER, TRANSPOSE, NON_UNIT, 1., ATL, ABL);
   // replace bottom right with (AL^-T)(AL^-T)^T = AQ^(-1)A^T
-  blas::Syrk(Lower, Normal, 1., ABL, 0., ABR);
+  Syrk(LOWER, NORMAL, 1., ABL, 0., ABR);
   // factorize bottom right into ~L
-  lapack::Chol(Lower, ABR);
- 
+  Cholesky(LOWER, ABR);
+
+  return 0; 
 }
 
 // separate solve routine so member solve() can manage iterative refinement
@@ -71,7 +72,7 @@ static void solveLDLT(DistMatrix<double,MC,MR> &A, DistMatrix<double,MC,MR> &x, 
   const Grid &g = A.Grid(); 
  
   // L solve 
-  blas::Trsv(Lower, Normal, NonUnit, A, x);
+  Trsv(LOWER, NORMAL, NON_UNIT, A, x);
 
   // D solve
   // D = [ I  0 ]
@@ -82,10 +83,10 @@ static void solveLDLT(DistMatrix<double,MC,MR> &A, DistMatrix<double,MC,MR> &x, 
                 xT, 
                 xB, 
                 nx);
-  blas::Scal(-1., xB);
+  Scale(-1., xB);
 
   // L^t solve
-  blas::Trsv(Lower, Transpose, NonUnit, A, x);
+  Trsv(LOWER, TRANSPOSE, NON_UNIT, A, x);
 }
 
 // x solution to Ax=b
@@ -95,11 +96,11 @@ static void calcResid(DistMatrix<double,MC,MR> &A,
   DistMatrix<double,MC,MR> &r, bool print)
 {
   r = b;
-  double n1 = lapack::OneNorm(b), n2 = lapack::InfinityNorm(b);
+  double n1 = OneNorm(b), n2 = InfinityNorm(b);
 
-  blas::Symv(Lower, -1., A, x, 1., r);
+  Symv(LOWER, -1., A, x, 1., r);
 
-  double n1_ = lapack::OneNorm(r), n2_ = lapack::InfinityNorm(r);
+  double n1_ = OneNorm(r), n2_ = InfinityNorm(r);
   if (print) printf("SC solve rel. ||Resid||_1 = %e, ||Resid||_inf = %e\n", n1_/n1,n2_/n2);
 
 }
@@ -130,7 +131,7 @@ void EmtlStochSymIndefSolver::solve( OoqpVector& v )
   // perform a step of iterative refinement
   if (perturb) {
     solveLDLT(A,r,nx);
-    blas::Axpy(1.,r,x);
+    Axpy(1.,r,x);
     if (pe0) printf("After refinement: ");
     calcResid(Acopy,x,rhscopy,r,pe0);
   }

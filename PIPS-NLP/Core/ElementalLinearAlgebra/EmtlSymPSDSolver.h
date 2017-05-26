@@ -15,7 +15,7 @@ class EmtlSymPSDSolver : public DoubleLinearSolver {
   EmtlSymPSDSolver( EmtlDenSymMatrix *mat);
   
   virtual void diagonalChanged( int idiag, int extent );
-  virtual void matrixChanged();
+  virtual int matrixChanged();
   virtual void solve ( OoqpVector& vec );
   virtual ~EmtlSymPSDSolver();
 

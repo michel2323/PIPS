@@ -6,11 +6,11 @@
 #define EMTLCONTEXT_H
 
 #define WITHOUT_COMPLEX // weird g++ bug
-#include "elemental.hpp"
+#include "El.hpp"
 #include "mpi.h"
 #include <cassert>
 
-using namespace elemental;
+using namespace El;
 
 #ifndef MAX
 #define MAX(a,b) ( (a>b) ? a : b )

@@ -197,6 +197,24 @@ find_library(DL_LIBRARY NAMES dl)
 
 set(SHARED_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdPartyLibs)
 
+# Elemental
+if(BUILD_PIPS_NLP)
+  set(EMTL_DIR ${SHARED_DIR}/Elemental)
+  if(NOT EXISTS "${EMTL_DIR}/include/El.hpp")
+    message(FATAL_ERROR "Please run \"./build_elemental.sh\" in ${SHARED_DIR}/Elemental")
+  endif(NOT EXISTS "${EMTL_DIR}/include/El.hpp")
+  set(EMTL_INCLUDE_PATH ${EMTL_DIR}/include)
+  set(EMTL_LIB_PATH ${EMTL_DIR}/lib)
+  include_directories(${EMTL_INCLUDE_PATH})
+  link_directories(${EMTL_LIB_PATH})
+  message(STATUS "Elemental include directory: ${EMTL_INCLUDE_PATH}")
+  message(STATUS "Elemental lib directory: ${EMTL_LIB_PATH}")
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(EMTL_LIBS "-lEl -lpmrrr -lElSuiteSparse -lparmetis -lmetis")
+  message(STATUS "EMTL_LIBS:=${EMTL_LIBS}")
+endif()
+
 #CBC
 set(COIN_DIR ${SHARED_DIR}/CBC/src)
 if(NOT EXISTS "${COIN_DIR}/lib/pkgconfig/coinutils.pc")

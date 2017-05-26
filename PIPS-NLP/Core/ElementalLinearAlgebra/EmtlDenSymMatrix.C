@@ -16,7 +16,7 @@ int EmtlDenSymMatrix::isKindOf( int type )
 
 }
 
-EmtlDenSymMatrix::EmtlDenSymMatrix( int size, const EmtlContext &ctx_ ) :
+EmtlDenSymMatrix::EmtlDenSymMatrix( long long size, const EmtlContext &ctx_ ) :
   ctx(ctx_)
 {
   m = size;
@@ -119,10 +119,19 @@ void EmtlDenSymMatrix::putSparseTriple( int irow[], int len,
 // Pass these to storage
 void EmtlDenSymMatrix::getSize( int& m, int& n )
 {
-  mat->getSize(m,n);
+  int m_=m;
+  int n_=n;
+  mat->getSize(m_,n_);
 }
 
-int EmtlDenSymMatrix::size()
+void EmtlDenSymMatrix::getSize( long long& m, long long& n )
+{
+  int m_=m;
+  int n_=n;
+  mat->getSize(m_,n_);
+}
+
+long long EmtlDenSymMatrix::size()
 {
   return m;
 }

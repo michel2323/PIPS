@@ -15,7 +15,7 @@ EmtlContext::EmtlContext(MPI_Comm comm, int emtlprocs) : mpicomm(comm), _usingTo
 
   // may have to modify this if using elemental at multiple levels
   // i.e. check if already initialized
-  elemental::Init(0,0);
+  // elemental::Init(0,0);
 
   _noop = (_mype >= emtlprocs);
 
@@ -112,5 +112,5 @@ EmtlContext::~EmtlContext()
   } else {
     delete [] procmap;
   }
-  elemental::Finalize();
+  // elemental::Finalize();
 }

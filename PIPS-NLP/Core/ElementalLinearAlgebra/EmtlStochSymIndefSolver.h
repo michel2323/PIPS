@@ -22,7 +22,7 @@ class EmtlStochSymIndefSolver : public DoubleLinearSolver {
   EmtlStochSymIndefSolver( EmtlDenSymMatrix *mat, int nx);
   
   virtual void diagonalChanged( int idiag, int extent );
-  virtual void matrixChanged();
+  virtual int matrixChanged();
   virtual void solve ( OoqpVector& vec );
   virtual ~EmtlStochSymIndefSolver();
 

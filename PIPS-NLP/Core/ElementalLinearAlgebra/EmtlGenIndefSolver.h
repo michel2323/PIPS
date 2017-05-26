@@ -11,7 +11,8 @@
 
 class EmtlGenIndefSolver : public DoubleLinearSolver {
   protected:
-  DistMatrix<int,VC,Star> *p;
+  // DistMatrix<int,VC,STAR> *p;
+  El::DistPermutation p;
   vector<int> image, preimage;
   int m,n;
   int nr;
@@ -23,7 +24,7 @@ class EmtlGenIndefSolver : public DoubleLinearSolver {
   EmtlGenIndefSolver( EmtlDenSymMatrix *mat);
   
   virtual void diagonalChanged( int idiag, int extent );
-  virtual void matrixChanged();
+  virtual int matrixChanged();
   virtual void solve ( OoqpVector& vec );
   virtual ~EmtlGenIndefSolver();
 

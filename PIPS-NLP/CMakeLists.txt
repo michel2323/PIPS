@@ -48,7 +48,7 @@ if(HAVE_PETSC)
 	reducedSolverSpecial
 #    schurDecompSolver
     nlpgensparse LU_solvers
-    nlpbase nlpsparse nlpdense nlpstochla
+    nlpbase nlpsparse nlpdense nlpemtl nlpstochla
 	global_var
     ${COIN_LIBS}
     ${MA27_LIBRARY} ${MA57_LIBRARY}
@@ -67,7 +67,7 @@ if(HAVE_PETSC)
 #     ReducedSpaceSolver
 	reducedSolverSpecial
     petsc_solver_sparse
-    nlpsparse nlpdense
+    nlpsparse nlpdense nlpemtl 
     pipsnlpFLS  nlpbase
 	global_var
 #	nlpstoch
@@ -89,7 +89,7 @@ else(HAVE_PETSC)
   target_link_libraries(pipsnlp_parallel
     genNLparallel StochInfoFromAMPL
     pipsnlpFLSStoch nlpstoch nlpstochla
-    nlpgensparse nlpbase nlpsparse nlpdense
+    nlpgensparse nlpbase nlpsparse nlpdense nlpemtl
 #    schurDecompSolver
 #    ReducedSpaceSolver blockSCSolver
 	reducedSolverSpecial
@@ -106,7 +106,7 @@ else(HAVE_PETSC)
   target_link_libraries(pipsnlp_serial
     genNLserial updateFromAMPL
     pipsnlpFLS nlpcNlpGenSparse nlpwithsolver
-    nlpgensparse nlpbase nlpsparse nlpdense
+    nlpgensparse nlpbase nlpsparse nlpdense nlpemtl
 	global_var
 #	nlpstoch
 #	nlpstochla
@@ -125,7 +125,7 @@ else(HAVE_PETSC)
 	dcopfcinput nlpstochInputBase  aggregationstoch 
     pipsnlpFLSStoch nlpstochla
     reducedSolverSpecial
-    nlpgensparse nlpbase nlpsparse nlpdense
+    nlpgensparse nlpbase nlpsparse nlpdense nlpemtl
     global_var
     ${MA27_LIBRARY} ${MA57_LIBRARY} ${METIS_LIBRARY}
     ${PARDISO_LIBRARY}
@@ -147,7 +147,7 @@ target_link_libraries(pipsnlp
   nlpgensparse
   LU_solvers
   nlpsparse 
-  nlpdense
+  nlpdense nlpemtl
   pipsnlpFLS  
   nlpbase
   global_var
@@ -175,7 +175,7 @@ add_library(parpipsnlp SHARED Drivers/parallelPipsNlp_C_Callback.cpp)
   #nlpwithsolver
   LU_solvers
   nlpsparse 
-  nlpdense
+  nlpdense nlpemtl
   pipsnlpFLSStoch 
   nlpstoch 
   nlpstochla 
@@ -184,6 +184,7 @@ add_library(parpipsnlp SHARED Drivers/parallelPipsNlp_C_Callback.cpp)
   genStructparallel
   structStochInfo
   #pipsnlpFLS  
+  ${EMTL_LIBS}
   ${COIN_LIBS}
   ${MA57_LIBRARY}
   ${MA27_LIBRARY}
