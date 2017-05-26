@@ -36,8 +36,8 @@ before_install:
   - if [ $OPENMPI -eq "1" ]; then export PATH=$PWD/local/bin:$PATH; fi
   
 install:
-  - ./build_3rdparty.sh $TEST_WITH_MA27
-  - ./build_pips.sh
+  - ./build_3rdparty.sh $TEST_WITH_MA27 2
+  - ./build_pips.sh 2
   
 script:
   - cd build

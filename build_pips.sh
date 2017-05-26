@@ -4,6 +4,11 @@
 
 # exit if a command fails
 set -e
+if [ -z $1 ]; then
+  NUMTHREADS=4
+else
+  NUMTHREADS=$1
+fi
 
 mkdir build
 cd build
@@ -16,5 +21,5 @@ cd build
 cmake -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_ALL=OFF -DBUILD_PIPS_NLP=ON -DBUILD_PIPS_DOC=ON -DDUMP=ON -B. -H..
 
 # Build using 4 processes. 
-make -j4
+make -j$NUMTHREADS
 

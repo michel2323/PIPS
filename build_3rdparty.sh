@@ -3,7 +3,14 @@
 ## This script should help to bootstrap PIPS and build thirdparty libraries.
 
 # Number of threads used to build
-NUMTHREADS=4
+sed -e
+
+if [ -z $2 ]; then
+  NUMTHREADS=4
+else
+  NUMTHREADS=$2
+fi
+
 if [ -z $1 ]; then
   BUILD_WITH_MA27=0
 else
