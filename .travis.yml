@@ -22,12 +22,18 @@ before_install:
   - cp ./PIPSThirdPartyLibs/solvers.tar.gz ./ThirdPartyLibs/ASL
   - if [ $TEST_WITH_MA27 -eq "0" ]; then cp ./PIPSThirdPartyLibs/ma57-3.9.0.tar.gz ./ThirdPartyLibs/MA57; fi
 # travis doesn't let me download openmpi from open-mpi.org
+  - if [ $OPENMPI -eq "1" ]; then cp ./PIPSThirdPartyLibs/openmpi-2.1.0.tar.gz .; fi
   - if [ $TEST_WITH_MA27 -eq "1" ]; then cp ./PIPSThirdPartyLibs/ma27-1.0.0.tar.gz ./ThirdPartyLibs/MA27; fi
   - sudo apt-get update -qq
   - sudo apt-get install -y libblas-dev liblapack-dev 
   - if [ $MPICH -eq "1" ]; then sudo apt-get install -y libmpich-dev mpich; fi
 # compile openmpi because ubuntu 14.04 openmpi package is outdated
   - if [ $OPENMPI -eq "1" ]; then sudo apt-get install -y gfortran libopenmpi-dev openmpi-bin openmpi-common; fi
+  - if [ $OPENMPI -eq "1" ]; then tar xzf openmpi-2.1.0.tar.gz; fi
+  - if [ $OPENMPI -eq "1" ]; then cd openmpi-2.1.0; ./configure -q --prefix=$PWD/../local --enable-mpi-cxx --enable-mpi-fortran=no; fi 
+  - if [ $OPENMPI -eq "1" ]; then make -j4; fi 
+  - if [ $OPENMPI -eq "1" ]; then make install; cd .. ; fi
+  - if [ $OPENMPI -eq "1" ]; then export PATH=$PWD/local/bin:$PATH; fi
   
 install:
   - ./build_3rdparty.sh $TEST_WITH_MA27
