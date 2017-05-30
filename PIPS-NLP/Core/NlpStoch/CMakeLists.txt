@@ -12,6 +12,14 @@ add_library(nlpstoch
   sTree.C 
   sTreeImpl.C 
   sInfo.C
+  sFactoryAugEmtl.C
+  sFactoryAugEmtl.h
+  sFactoryAugEmtlSym.C
+  sFactoryAugEmtlSym.h
+  sLinsysRootAugEmtl.C
+  sLinsysRootAugEmtl.h
+  sLinsysRootAugEmtlSym.C
+  sLinsysRootAugEmtlSym.h
 )
 
 add_library(aggregationstoch sFactoryAugAggregationPrecond.C sLinsysRootAggregation.C ) 

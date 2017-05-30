@@ -7,6 +7,7 @@ include_directories(Core/Abstract Core/Vector Core/Utilities Core/QpGen
   Core/LinearSolvers/BiCGStabSolver
   Core/LinearSolvers/UmfPackSolver)
 include_directories(Core/StochLinearAlgebra)
+include_directories(Core/ElementalLinearAlgebra)
 include_directories(Core/NlpSolvers Core/NlpGen)
 include_directories(Core/NlpInfo)
 include_directories(Core/NlpStoch)
