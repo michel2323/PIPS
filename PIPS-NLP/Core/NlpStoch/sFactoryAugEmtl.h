@@ -19,8 +19,8 @@ class sFactoryAugEmtl : public sFactory {
   virtual ~sFactoryAugEmtl();
 
   virtual sLinsysRoot* newLinsysRoot();
-  virtual sLinsysRoot* newLinsysRoot(QpGenStochData* prob,
+  virtual sLinsysRoot* newLinsysRoot(sData* prob,
 				     OoqpVector* dd,OoqpVector* dq,
-				     OoqpVector* nomegaInv, OoqpVector* rhs);
+				     OoqpVector* nomegaInv, OoqpVector* rhs, OoqpVector* additiveDiag);
 };
 #endif

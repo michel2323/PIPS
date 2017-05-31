@@ -10,7 +10,7 @@
 #include "EmtlContext.h"
 
 
-class QpGenStochData;
+class sData;
 /** 
  * ROOT (= NON-leaf) linear system in reduced augmented form
  */
@@ -19,24 +19,25 @@ class sLinsysRootAugEmtlSym : public sLinsysRootAugEmtl {
   //sLinsysRootAugEmtlSym() {};
 
   virtual DoubleLinearSolver* 
-                       createSolver  (QpGenStochData* prob, 
+                       createSolver  (sData* prob, 
 				      SymMatrix* kktmat);
 
-  //virtual void         createChildren(QpGenStochData* prob) 
+  //virtual void         createChildren(sData* prob) 
   //{sLinsysRoot::createChildren(prob);};
  public:
 
-  sLinsysRootAugEmtlSym(sFactory * factory_, QpGenStochData * prob_, const EmtlContext &ctx_);
+  sLinsysRootAugEmtlSym(sFactory * factory_, sData * prob_, const EmtlContext &ctx_);
   sLinsysRootAugEmtlSym(sFactory* factory,
-			     QpGenStochData* prob_,				    
+			     sData* prob_,				    
 			     OoqpVector* dd_, OoqpVector* dq_, 
 			     OoqpVector* nomegaInv_,
 			     OoqpVector* rhs_,
+           OoqpVector* additiveDiag_,
 			     const EmtlContext &ctx_);
   virtual ~sLinsysRootAugEmtlSym();
 
  public:
-  virtual void factor2(QpGenStochData *prob, Variables *vars);
+  virtual int factor2(sData *prob, Variables *vars);
  protected:
 
 };

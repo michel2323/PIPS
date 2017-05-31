@@ -5,7 +5,7 @@
 
 #include "sFactoryAugEmtlSym.h"
 
-#include "QpGenStochData.h"
+#include "sData.h"
 
 #include "StochTree.h"
 #include "StochInputTree.h"
@@ -55,9 +55,9 @@ sLinsysRoot* sFactoryAugEmtlSym::newLinsysRoot()
 }
 
 sLinsysRoot* 
-sFactoryAugEmtlSym::newLinsysRoot(QpGenStochData* prob,
+sFactoryAugEmtlSym::newLinsysRoot(sData* prob,
 			   OoqpVector* dd,OoqpVector* dq,
-			   OoqpVector* nomegaInv, OoqpVector* rhs)
+			   OoqpVector* nomegaInv, OoqpVector* additiveDiag, OoqpVector* rhs)
 {
-  return new sLinsysRootAugEmtlSym(this, prob, dd, dq, nomegaInv, rhs, *ctx);
+  return new sLinsysRootAugEmtlSym(this, prob, dd, dq, nomegaInv, rhs, additiveDiag, *ctx);
 }

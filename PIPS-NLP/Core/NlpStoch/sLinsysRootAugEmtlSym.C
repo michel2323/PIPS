@@ -3,7 +3,7 @@
    See license and copyright information in the documentation */
 
 #include "sLinsysRootAugEmtlSym.h"
-#include "QpGenStochData.h"
+#include "sData.h"
 #include "EmtlDenSymMatrix.h"
 #include "EmtlStochSymIndefSolver.h"
 #include "EmtlSymPSDSolver.h"
@@ -14,7 +14,7 @@
 extern double g_iterNumber;
 #endif
 
-sLinsysRootAugEmtlSym::sLinsysRootAugEmtlSym(sFactory * factory_, QpGenStochData * prob_, const EmtlContext &ctx_)
+sLinsysRootAugEmtlSym::sLinsysRootAugEmtlSym(sFactory * factory_, sData * prob_, const EmtlContext &ctx_)
   : sLinsysRootAugEmtl(factory_, prob_, ctx_)
 {
   // for some reason createSolver called from sLinsysRootAugEmtl
@@ -24,13 +24,14 @@ sLinsysRootAugEmtlSym::sLinsysRootAugEmtlSym(sFactory * factory_, QpGenStochData
 }
 
 sLinsysRootAugEmtlSym::sLinsysRootAugEmtlSym(sFactory* factory_,
-			       QpGenStochData* prob_,
+			       sData* prob_,
 			       OoqpVector* dd_, 
 			       OoqpVector* dq_,
 			       OoqpVector* nomegaInv_,
 			       OoqpVector* rhs_,
+             OoqpVector* additiveDiag_,
 			       const EmtlContext &ctx_)
-  : sLinsysRootAugEmtl(factory_, prob_, dd_, dq_, nomegaInv_, rhs_, ctx_)
+  : sLinsysRootAugEmtl(factory_, prob_, dd_, dq_, nomegaInv_, rhs_, additiveDiag_, ctx_)
 { 
 
 }
@@ -41,7 +42,7 @@ sLinsysRootAugEmtlSym::~sLinsysRootAugEmtlSym()
 
 
 DoubleLinearSolver*
-sLinsysRootAugEmtlSym::createSolver(QpGenStochData* prob, SymMatrix* kktmat_)
+sLinsysRootAugEmtlSym::createSolver(sData* prob, SymMatrix* kktmat_)
 {
 
   EmtlDenSymMatrix* kktmat = dynamic_cast<EmtlDenSymMatrix*>(kktmat_);
@@ -87,7 +88,7 @@ static int countcols(int startcol, int endcol, int n)
 static inline int recvUB(int startcol, int endcol, int nprow, int npcol, int n) {
   int count = 0;
   for (int i = startcol; i < endcol; i += npcol) {
-    count += utilities::MaxLocalLength(n - i, nprow);
+    count += MaxLength(n - i, nprow);
   }
   return count;
 }
@@ -171,8 +172,10 @@ void memstat() {
 
 const double MAX_MB_FOR_SEND_BUFFERS = 200;
 
-void sLinsysRootAugEmtlSym::factor2(QpGenStochData *prob, Variables *vars)
+int sLinsysRootAugEmtlSym::factor2(sData *prob, Variables *vars)
 {
+  int return_NegEval=-1;
+  printf("TO BE IMPLEMENTED: NegEVal\n");
   EmtlDenSymMatrix& kktd = dynamic_cast<EmtlDenSymMatrix&>(*kkt);
   int nxP = locnx;
   
@@ -197,7 +200,7 @@ void sLinsysRootAugEmtlSym::factor2(QpGenStochData *prob, Variables *vars)
 
   int *nr_counts = new int[ctx.nprow()];
   for (int i = 0; i < ctx.nprow(); i++) {
-    nr_counts[i] = utilities::LocalLength(nxP, i, ctx.nprow());
+    nr_counts[i] = Length(nxP, i, ctx.nprow());
   }
   
   // First tell children to factorize.
@@ -373,6 +376,7 @@ void sLinsysRootAugEmtlSym::factor2(QpGenStochData *prob, Variables *vars)
 #ifdef TIMING
   afterFactor();
 #endif
+  return return_NegEval=-1;
 
 }
 

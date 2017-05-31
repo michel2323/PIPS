@@ -8,7 +8,7 @@
 #include "sLinsysRoot.h"
 #include "EmtlContext.h"
 
-class QpGenStochData;
+class sData;
 /** 
  * ROOT (= NON-leaf) linear system in reduced augmented form
  */
@@ -16,30 +16,31 @@ class sLinsysRootAugEmtl : public sLinsysRoot {
  protected:
   //sLinsysRootAugEmtl() {};
 
-  virtual SymMatrix*   createKKT     (QpGenStochData* prob);
+  virtual SymMatrix*   createKKT     (sData* prob);
   virtual DoubleLinearSolver* 
-                       createSolver  (QpGenStochData* prob, 
+                       createSolver  (sData* prob, 
 				      SymMatrix* kktmat);
 
   //virtual void         createChildren(QpGenStochData* prob) 
   //{sLinsysRoot::createChildren(prob);};
  public:
 
-  sLinsysRootAugEmtl(sFactory * factory_, QpGenStochData * prob_, const EmtlContext &ctx_);
+  sLinsysRootAugEmtl(sFactory * factory_, sData * prob_, const EmtlContext &ctx_);
   sLinsysRootAugEmtl(sFactory* factory,
-			     QpGenStochData* prob_,				    
+			     sData* prob_,				    
 			     OoqpVector* dd_, OoqpVector* dq_, 
 			     OoqpVector* nomegaInv_,
 			     OoqpVector* rhs_,
+           OoqpVector* additiveDiag_,
 			     const EmtlContext &ctx_);
   virtual ~sLinsysRootAugEmtl();
 
  public:
-  virtual void finalizeKKT(QpGenStochData* prob, Variables* vars);
-  virtual void initializeKKT(QpGenStochData* prob, Variables* vars);
-  virtual void factor2(QpGenStochData *prob, Variables *vars);
+  virtual void finalizeKKT(sData* prob, Variables* vars);
+  virtual void initializeKKT(sData* prob, Variables* vars);
+  virtual int factor2(sData *prob, Variables *vars);
  protected:
-  virtual void solveReduced( QpGenStochData *prob, SimpleVector& b);
+  virtual void solveReduced( sData *prob, SimpleVector& b);
 
   const EmtlContext &ctx;
   SymMatrix* CtDC;

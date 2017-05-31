@@ -3,7 +3,7 @@
    See license and copyright information in the documentation */
 
 #include "sLinsysRootAugEmtl.h"
-#include "QpGenStochData.h"
+#include "sData.h"
 #include "EmtlDenSymMatrix.h"
 #include "EmtlGenIndefSolver.h"
 #include "EmtlSymPSDSolver.h"
@@ -13,7 +13,7 @@
 extern double g_iterNumber;
 #endif
 
-sLinsysRootAugEmtl::sLinsysRootAugEmtl(sFactory * factory_, QpGenStochData * prob_, const EmtlContext &ctx_)
+sLinsysRootAugEmtl::sLinsysRootAugEmtl(sFactory * factory_, sData * prob_, const EmtlContext &ctx_)
   : sLinsysRoot(factory_, prob_), ctx(ctx_), CtDC(NULL)
 { 
   prob_->getLocalSizes(locnx, locmy, locmz);
@@ -25,13 +25,14 @@ sLinsysRootAugEmtl::sLinsysRootAugEmtl(sFactory * factory_, QpGenStochData * pro
 };
 
 sLinsysRootAugEmtl::sLinsysRootAugEmtl(sFactory* factory_,
-			       QpGenStochData* prob_,
+			       sData* prob_,
 			       OoqpVector* dd_, 
 			       OoqpVector* dq_,
 			       OoqpVector* nomegaInv_,
 			       OoqpVector* rhs_,
+             OoqpVector* additiveDiag_,
 			       const EmtlContext &ctx_)
-  : sLinsysRoot(factory_, prob_, dd_, dq_, nomegaInv_, rhs_), 
+  : sLinsysRoot(factory_, prob_, dd_, dq_, nomegaInv_, additiveDiag_, rhs_), 
     ctx(ctx_), CtDC(NULL)
 { 
   prob_->getLocalSizes(locnx, locmy, locmz);
@@ -51,7 +52,7 @@ sLinsysRootAugEmtl::~sLinsysRootAugEmtl()
 
 
 SymMatrix* 
-sLinsysRootAugEmtl::createKKT(QpGenStochData* prob)
+sLinsysRootAugEmtl::createKKT(sData* prob)
 {
   int n = locnx+locmy;
   return new EmtlDenSymMatrix(n, ctx);
@@ -59,14 +60,14 @@ sLinsysRootAugEmtl::createKKT(QpGenStochData* prob)
 
 
 DoubleLinearSolver*
-sLinsysRootAugEmtl::createSolver(QpGenStochData* prob, SymMatrix* kktmat_)
+sLinsysRootAugEmtl::createSolver(sData* prob, SymMatrix* kktmat_)
 {
 
   EmtlDenSymMatrix* kktmat = dynamic_cast<EmtlDenSymMatrix*>(kktmat_);
   return new EmtlGenIndefSolver(kktmat);
 }
 
-void sLinsysRootAugEmtl::initializeKKT(QpGenStochData* prob, Variables* vars)
+void sLinsysRootAugEmtl::initializeKKT(sData* prob, Variables* vars)
 {
   kkt->scalarMult(0.);
   
@@ -74,7 +75,7 @@ void sLinsysRootAugEmtl::initializeKKT(QpGenStochData* prob, Variables* vars)
 
 
 
-void sLinsysRootAugEmtl::solveReduced( QpGenStochData *prob, SimpleVector& b)
+void sLinsysRootAugEmtl::solveReduced( sData *prob, SimpleVector& b)
 {
   assert(locnx+locmy+locmz==b.length());
   SimpleVector& r = (*redRhs);
@@ -144,7 +145,7 @@ void sLinsysRootAugEmtl::solveReduced( QpGenStochData *prob, SimpleVector& b)
   
 }
 
-void sLinsysRootAugEmtl::finalizeKKT(QpGenStochData* prob, Variables* vars)
+void sLinsysRootAugEmtl::finalizeKKT(sData* prob, Variables* vars)
 {
   int j, p, pend; double val;
 
@@ -226,8 +227,10 @@ static inline int firstcol(const int mycol,const int startcol,const int npcol)
 
 const double MAX_MB_FOR_COL_BUFFERS = 100;
 
-void sLinsysRootAugEmtl::factor2(QpGenStochData *prob, Variables *vars)
+int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
 {
+  int return_NegEval=-1;
+  printf("TO BE IMPLEMENTED: NegEVal\n");
   EmtlDenSymMatrix& kktd = dynamic_cast<EmtlDenSymMatrix&>(*kkt);
   int nxP = locnx;
   
@@ -240,9 +243,9 @@ void sLinsysRootAugEmtl::factor2(QpGenStochData *prob, Variables *vars)
   // indexed by processor row
   int *nr_counts = new int[ctx.nprow()];
   for (int i = 0; i < ctx.nprow(); i++) {
-    nr_counts[i] = utilities::LocalLength(nxP, i, ctx.nprow());
+    nr_counts[i] = Length(nxP, i, ctx.nprow());
   }
-  int max_nr = utilities::MaxLocalLength(nxP, ctx.nprow());
+  int max_nr = MaxLength(nxP, ctx.nprow());
 
   DenseGenMatrix colbuffer(BLOCKSIZE, nxP);
   double *recvbuffer = new double[max_nr*BLOCKSIZE];
@@ -305,7 +308,7 @@ void sLinsysRootAugEmtl::factor2(QpGenStochData *prob, Variables *vars)
     for (int pcol = 0; pcol < ctx.npcol(); pcol++) {
       for (int prow = 0; prow < ctx.nprow(); prow++) {
         // how many columns are we sending to this processor column
-        int ncols = utilities::LocalLength(
+        int ncols = Length(
                       numcols-firstcol(pcol,startcol,ctx.npcol()), 
                       0, ctx.npcol());
         recvcounts[destproc++] = nr_counts[prow]*ncols;
@@ -359,6 +362,7 @@ void sLinsysRootAugEmtl::factor2(QpGenStochData *prob, Variables *vars)
 #ifdef TIMING
   afterFactor();
 #endif
+  return return_NegEval=-1;
 
 }
 
