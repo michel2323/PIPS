@@ -7,7 +7,7 @@ tar xzf v0.87.7.tar.gz
 cd Elemental-0.87.7
 mkdir build
 cd build
-cmake .. -DCMAKE_BUILD_TYPE=DEBUG -DCMAKE_INSTALL_PREFIX=$PWD/../../
+cmake .. -DCMAKE_BUILD_TYPE=Debug -DCXX_FLAGS="-g -O0" -DCMAKE_INSTALL_PREFIX=$PWD/../../
 make -j$1
 make install
 
