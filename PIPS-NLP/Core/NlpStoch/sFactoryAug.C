@@ -37,6 +37,9 @@ sFactoryAug::~sFactoryAug()
 
 sLinsysRoot* sFactoryAug::newLinsysRoot()
 {
+#ifdef DEBUG
+  printf("sFactoryAug::newLinsysRoot 1\n");
+#endif
   return new sLinsysRootAug(this, data);
 }
 
@@ -45,12 +48,18 @@ sFactoryAug::newLinsysRoot(sData* prob,
 			   OoqpVector* dd,OoqpVector* dq,
 			   OoqpVector* nomegaInv, OoqpVector* rhs, OoqpVector* additiveDiag)
 {
+#ifdef DEBUG
+  printf("sFactoryAug::newLinsysRoot 2\n");
+#endif
   return new sLinsysRootAug(this, prob, dd, dq, nomegaInv, rhs, additiveDiag);
 }
 
 
 LinearSystem* sFactoryAug::makeLinsys( Data * prob_in )
 {  
+#ifdef DEBUG
+  printf("sFactoryAug::newLinsysRoot 3\n");
+#endif
   linsys = NULL;
   linsys = newLinsysRoot();
 

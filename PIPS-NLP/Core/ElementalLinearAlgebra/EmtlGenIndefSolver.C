@@ -1,5 +1,5 @@
 /* PIPS
-   Authors: Miles Lubin
+   Authors: Miles Lubin, Michel Schanen
    See license and copyright information in the documentation */
 
 #include "EmtlGenIndefSolver.h"
@@ -7,7 +7,6 @@
 #include <cassert>
 #include <sys/resource.h>
 #include <iostream>
-// #include "elemental/lapack_internal.hpp"
 
 EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenGenMatrix *mat)
 {
@@ -15,9 +14,6 @@ EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenGenMatrix *mat)
   
   mat->getSize(m,n);
   assert(m==n);
-  // if (!mat->isNoop()) { 
-  //   p = new DistMatrix<int,VC,STAR>(m,1,mat->ctx.grid());
-  // } 
 }
 
 EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenSymMatrix *mat_ )
@@ -27,9 +23,6 @@ EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenSymMatrix *mat_ )
   
   mat->getSize(m,n);
   assert(m==n);
-  // if (!mat->isNoop()) { 
-  //   p = new DistMatrix<int,VC,STAR>(m,1,mat->ctx.grid());
-  // } 
 }
 
 void EmtlGenIndefSolver::diagonalChanged( int idiag, int extent )
@@ -42,59 +35,40 @@ int EmtlGenIndefSolver::matrixChanged()
 {
   if (mat->isNoop()) return 0;
   DistMatrix<double,MC,MR> &A = *mat->A;
-
-  El::LU(A,p);
-  needtocompose = true;
-  return 0;
-  // don't time compose pivots
-  /*
-  DistMatrix<int,Star,Star> p_Star_Star(mat->ctx.grid());
-  p_Star_Star = *p;
-  lapack::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
-  */
+#ifdef DEBUG
+  // printf("[EmtlGenIndefSolver]\n");
+  // El::Display(A);
+#endif
+  double before=mat->abmaxnorm();
+  El::LDL( A, dSub, p, false, El::BUNCH_KAUFMAN_A);
+  double after=mat->abmaxnorm();
+  GetDiagonal(A,d);
+  InertiaType inertia=El::ldl::Inertia(d,dSub);
+  negEigVal=inertia.numNegative;
+#ifdef DEBUG
+  printf("Inertia: %d %lf %lf \n", negEigVal, before, after);
+#endif
+  return negEigVal;
 }
 
 void EmtlGenIndefSolver::solve( OoqpVector& v )
 {
   if (mat->isNoop()) return;
-  // if (needtocompose) {
-  //   DistMatrix<int,STAR,STAR> p_Star_Star(mat->ctx.grid());
-  //   p_Star_Star = p;
-  //   lapack::internal::ComposePivots( p_Star_Star, image, preimage, 0 );
-  //   needtocompose = false;
-  // }
   
   EmtlVector &vec = dynamic_cast<EmtlVector&>(v);
   DistMatrix<double,MC,MR> &A = *mat->A;
   DistMatrix<double,MC,MR> &x = *vec.A;
-
-  /*
-  rusage before_solve;
-  getrusage( RUSAGE_SELF, &before_solve );
-  */
-  
-  // lapack::internal::ApplyRowPivots( x, image, preimage, 0 );
-  // blas::Trsv( Lower, Normal, Unit, A, x );
-  // blas::Trsv( Upper, Normal, NonUnit, A, x );
-  El::lu::SolveAfter(El::OrientationNS::NORMAL, A, p, x);
-  
-  /*
-  rusage  after_solve;
-  getrusage( RUSAGE_SELF, &after_solve );
-  
-  double solve_time =
-	  (after_solve.ru_utime.tv_sec - before_solve.ru_utime.tv_sec)
-	  + (after_solve.ru_utime.tv_usec - before_solve.ru_utime.tv_usec)
-	  / 1000000.0;
-    
-  if (mat->cinfo.mype == 0) {
-    cout << "solve time: " << solve_time << endl;
-  }*/
+  #ifdef DEBUG
+  // Display(x);
+  printf("[DeSymIndefSolver::solve 1] norm: %f\n", vec.infnorm());
+  #endif
+  El::ldl::SolveAfter(A, dSub, p, x, false);
+  #ifdef DEBUG
+  // Display(x);
+  printf("[DeSymIndefSolver::solve 2] norm: %f\n", vec.infnorm());
+  #endif
 }
 
 EmtlGenIndefSolver::~EmtlGenIndefSolver()
 {
-  // if (!mat->isNoop()) {
-  //   delete p;
-  // }
 }

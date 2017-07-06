@@ -1,5 +1,7 @@
 add_subdirectory(SparseLinearAlgebra)
+if(ELEMENTAL)
 add_subdirectory(ElementalLinearAlgebra)
+endif()
 add_subdirectory(DenseLinearAlgebra)
 add_subdirectory(StochLinearAlgebra)
 

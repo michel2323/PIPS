@@ -119,16 +119,12 @@ void EmtlDenSymMatrix::putSparseTriple( int irow[], int len,
 // Pass these to storage
 void EmtlDenSymMatrix::getSize( int& m, int& n )
 {
-  int m_=m;
-  int n_=n;
-  mat->getSize(m_,n_);
+  mat->getSize(m,n);
 }
 
 void EmtlDenSymMatrix::getSize( long long& m, long long& n )
 {
-  int m_=m;
-  int n_=n;
-  mat->getSize(m_,n_);
+  mat->getSize(m,n);
 }
 
 long long EmtlDenSymMatrix::size()
@@ -268,4 +264,15 @@ double EmtlDenSymMatrix::getVal(int row, int col) const
   MPI_Bcast(&v2, 1, MPI_DOUBLE, proc, ctx.comm());
   assert( fabs(v1 - v2) < 10E-6 );
   return v1;
+}
+
+void EmtlDenSymMatrix::symAtSetSubmatrix( int destRow, int destCol,
+					    DoubleMatrix& Mat,
+					    int srcRow, int srcCol,
+					    int rowExtent, int colExtent, 
+					    bool firstCall, std::map<int,int> &ValIdxMap )
+{
+ mat->atPutSubmatrix(destRow, destCol, Mat, srcRow, srcCol, 
+   rowExtent, colExtent, false);
+   return;
 }

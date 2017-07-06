@@ -48,27 +48,31 @@ EmtlContext::EmtlContext(MPI_Comm comm, int emtlprocs) : mpicomm(comm), _usingTo
 
   if (!_usingTorus) {
 
-    MPI_Group allgroup, emtlgroup;
-    MPI_Comm_group(mpicomm, &allgroup);
-
-    int *ranks = new int[emtlprocs];
-    for (int i = 0; i < emtlprocs; i++) {
-      ranks[i] = i;
-    }
-    MPI_Group_incl(allgroup, emtlprocs, ranks, &emtlgroup);
-    MPI_Comm_create(mpicomm, emtlgroup, &emtlcomm);
-
-    MPI_Group_free(&emtlgroup);
-    MPI_Group_free(&allgroup);
-    delete [] ranks;
+    // MPI_Group allgroup, emtlgroup;
+    // MPI_Comm_group(mpicomm, &allgroup);
+    // 
+    // int *ranks = new int[emtlprocs];
+    // for (int i = 0; i < emtlprocs; i++) {
+    //   ranks[i] = i;
+    // }
+    // MPI_Group_incl(allgroup, emtlprocs, ranks, &emtlgroup);
+    // MPI_Comm_create(mpicomm, emtlgroup, &emtlcomm);
+    // 
+    // MPI_Group_free(&emtlgroup);
+    // MPI_Group_free(&allgroup);
+    // delete [] ranks;
    
     int dims[2] = {0,0};
     MPI_Dims_create(emtlprocs, 2, dims);
     _nprow = dims[0];
     _npcol = dims[1];
+  #ifdef DEBUG
+    printf("[EmtlContext::EmtlContext] _nprow, _npcol: %d %d\n", _nprow, _npcol);
+  #endif
 
     if (!_noop) {
-      _grid = new Grid(emtlcomm, _nprow, _npcol);
+      // _grid = new Grid(emtlcomm, _nprow, _npcol);
+      _grid = new Grid(mpicomm, _nprow);
       assert(_nprow == _grid->Height());
       assert(_npcol == _grid->Width());
 
@@ -108,7 +112,7 @@ EmtlContext::~EmtlContext()
     delete _grid;
   }
   if (!_usingTorus) {
-    MPI_Comm_free(&emtlcomm);
+    //MPI_Comm_free(&emtlcomm);
   } else {
     delete [] procmap;
   }

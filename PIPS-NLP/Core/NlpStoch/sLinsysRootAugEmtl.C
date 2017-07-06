@@ -12,6 +12,8 @@
 #ifdef STOCH_TESTING
 extern double g_iterNumber;
 #endif
+extern int gInnerSCsolve;
+extern int gOuterSolve;
 
 sLinsysRootAugEmtl::sLinsysRootAugEmtl(sFactory * factory_, sData * prob_, const EmtlContext &ctx_)
   : sLinsysRoot(factory_, prob_), ctx(ctx_), CtDC(NULL)
@@ -19,8 +21,12 @@ sLinsysRootAugEmtl::sLinsysRootAugEmtl(sFactory * factory_, sData * prob_, const
   prob_->getLocalSizes(locnx, locmy, locmz);
   kkt = createKKT(prob_);
   solver = this->createSolver(prob_, kkt);
-  redRhs = new SimpleVector(locnx+locmy+locmz);
-  emtlRhs = new EmtlVector(locnx+locmy, ctx);
+  redRhs = new SimpleVector(locnx+locmz+locmy+locmz);
+  assert(gOuterSolve>=3);
+#ifdef DEBUG
+  printf("[sLinsysRootAugEmtl 1] sizes: %d %d %d\n",locnx,locmy,locmz);
+#endif
+  emtlRhs = new EmtlVector(locnx+locmz+locmy+locmz, ctx);
   iAmDistrib = 1;
 };
 
@@ -38,8 +44,11 @@ sLinsysRootAugEmtl::sLinsysRootAugEmtl(sFactory* factory_,
   prob_->getLocalSizes(locnx, locmy, locmz);
   kkt = createKKT(prob_);
   solver = this->createSolver(prob_, kkt);
-  redRhs = new SimpleVector(locnx+locmy+locmz);
-  emtlRhs = new EmtlVector(locnx+locmy, ctx);
+#ifdef DEBUG
+  printf("[sLinsysRootAugEmtl 2] sizes: %d %d %d\n",locnx,locmy,locmz);
+#endif
+  redRhs = new SimpleVector(locnx+locmz+locmy+locmz);
+  emtlRhs = new EmtlVector(locnx+locmz+locmy+locmz, ctx);
   iAmDistrib = 1;
 };
 
@@ -54,7 +63,14 @@ sLinsysRootAugEmtl::~sLinsysRootAugEmtl()
 SymMatrix* 
 sLinsysRootAugEmtl::createKKT(sData* prob)
 {
-  int n = locnx+locmy;
+  int n;
+
+  if(gOuterSolve < 3){
+    n = locnx+locmy;
+    assert(locmz==0);
+  }else{
+    n = locnx+locmy+locmz+locmz;
+  }
   return new EmtlDenSymMatrix(n, ctx);
 }
 
@@ -77,10 +93,13 @@ void sLinsysRootAugEmtl::initializeKKT(sData* prob, Variables* vars)
 
 void sLinsysRootAugEmtl::solveReduced( sData *prob, SimpleVector& b)
 {
-  assert(locnx+locmy+locmz==b.length());
+  assert(locnx+locmz+locmy+locmz==b.length());
   SimpleVector& r = (*redRhs);
-  assert(r.length() <= b.length());
+  assert(r.length() == b.length());
   SparseGenMatrix& C = prob->getLocalD();
+#ifdef DEBUG
+  printf("[sLinsysRootAugEmtl::solveReduced 1] b: %1.2e\n",b.onenorm());
+#endif
 
   stochNode->resMon.recDsolveTmLocal_start();
 
@@ -98,31 +117,36 @@ void sLinsysRootAugEmtl::solveReduced( sData *prob, SimpleVector& b)
   r.copyFromArray(b.elements()); //will copy only as many elems as r has
 
   // aliases to parts (no mem allocations)
-  SimpleVector r3(&r[locnx+locmy], locmz); //r3 is used as a temp
-                                           //buffer for b3
+  SimpleVector r4(&r[locnx+locmz+locmy], locmz);
+  SimpleVector r3(&r[locnx+locmz], locmy); //r3 is used as a temp buffer for b3
+  SimpleVector r2(&r[locnx],       locmz);
   SimpleVector r1(&r[0],           locnx);
 
   ///////////////////////////////////////////////////////////////////////
   // compute r1 = b1 - C^T*(zDiag)^{-1}*b3
-  ///////////////////////////////////////////////////////////////////////
-  if(locmz>0) {
-    assert(r3.length() == zDiag->length());
-    r3.componentDiv(*zDiag);//r3 is a copy of b3
-    C.transMult(1.0, r1, -1.0, r3);
-  }
-  ///////////////////////////////////////////////////////////////////////
-  // r contains all the stuff -> solve for it
   ///////////////////////////////////////////////////////////////////////
 
   // Plug in elemental here
   EmtlVector& realRhs = dynamic_cast<EmtlVector&>(*emtlRhs);
   realRhs.copyFromArray(&r[0]);
 
-  solver->Dsolve(realRhs);
-  
-  realRhs.copyIntoArray(&r[0]);
   // end of elemental
-
+  if(gInnerSCsolve==0) {
+    // Option 1. - solve with the factors
+    solver->Dsolve(realRhs);
+  } else if(gInnerSCsolve==1) {
+    printf("solveWithIterRef not implemented.\n");
+    assert(0);
+    // Option 2 - solve with the factors and perform iter. ref.
+    // solveWithIterRef(prob, realRhs);
+  } else {
+    assert(gInnerSCsolve==2);
+    printf("solveWithBiCGStab not implemented.\n");
+    assert(0);
+    // Option 3 - use the factors as preconditioner and apply BiCGStab
+    // solveWithBiCGStab(prob, realRhs);
+  }
+  realRhs.copyIntoArray(&r[0]);
 
   ///////////////////////////////////////////////////////////////////////
   // r is the sln to the reduced system
@@ -130,16 +154,16 @@ void sLinsysRootAugEmtl::solveReduced( sData *prob, SimpleVector& b)
   //      x = [r1; r2;  (zDiag)^{-1} * (b3-C*r1);
   ///////////////////////////////////////////////////////////////////////
   SimpleVector b1(&b[0],           locnx);
-  SimpleVector b2(&b[locnx],       locmy);
-  SimpleVector b3(&b[locnx+locmy], locmz);
-  SimpleVector r2(&r[locnx],       locmy);
+  SimpleVector b2(&b[locnx],       locmz);
+  SimpleVector b3(&b[locnx+locmz], locmy);
+  SimpleVector b4(&b[locnx+locmz+locmy], locmz);  
   b1.copyFrom(r1);
   b2.copyFrom(r2);
-  if(locmz>0) {
-    C.mult(1.0, b3, -1.0, r1);
-    b3.componentDiv(*zDiag);
-  }
-  //--done
+  b3.copyFrom(r3);
+  b4.copyFrom(r4);
+#ifdef DEBUG  
+  printf("[sLinsysRootAugEmtl::solveReduced 2] b: %1.2e %d %lld\n",b.onenorm(), realRhs.getLocalSize(), r.length());
+#endif
   stochNode->resMon.recDsolveTmLocal_stop();
 
   
@@ -152,6 +176,11 @@ void sLinsysRootAugEmtl::finalizeKKT(sData* prob, Variables* vars)
   stochNode->resMon.recSchurMultLocal_start();
 
   EmtlDenSymMatrix * kktd = dynamic_cast<EmtlDenSymMatrix*>(kkt);
+  int m__, n__ ; 
+  kkt->getSize(m__,n__);
+#ifdef DEBUG
+  printf("[sLinsysRoot::finalizeKKT 1] kktd: %1.10e\n",kktd->abmaxnorm());
+#endif
  
 
   //////////////////////////////////////////////////////
@@ -174,6 +203,9 @@ void sLinsysRootAugEmtl::finalizeKKT(sData* prob, Variables* vars)
       kktd->symAddAt(i,j,val);
     }
   }
+#ifdef DEBUG
+  printf("[sLinsysRoot::finalizeKKT 2] kktd: %1.10e\n",kktd->abmaxnorm());
+#endif
 
   
   /////////////////////////////////////////////////////////////
@@ -182,41 +214,47 @@ void sLinsysRootAugEmtl::finalizeKKT(sData* prob, Variables* vars)
   /////////////////////////////////////////////////////////////
   //kktd->atPutDiagonal( 0, *xDiag );
   SimpleVector& sxDiag = dynamic_cast<SimpleVector&>(*xDiag);
+  SimpleVector& syDiag = dynamic_cast<SimpleVector&>(*yDiag);
+  
   for(int i=0; i<locnx; i++) kktd->symAddAt(i,i,sxDiag[i]);
+#ifdef DEBUG
+  printf("[sLinsysRoot::finalizeKKT 3] kktd: %1.10e\n",kktd->abmaxnorm());
+#endif
 
+  SimpleVector& ssDiag = dynamic_cast<SimpleVector&>(*sDiag);
+  SimpleVector& szDiag = dynamic_cast<SimpleVector&>(*zDiag);
 
   /////////////////////////////////////////////////////////////
-  // update the KKT with   - C' * diag(zDiag) *C
+  // update the KKT with  S part
   /////////////////////////////////////////////////////////////
   if(locmz>0) {
-    SparseGenMatrix& C = prob->getLocalD();
-    C.matTransDinvMultMat(*zDiag, &CtDC);
-    assert(CtDC->size() == locnx);
-
-    //aliases for internal buffers of CtDC
-    SparseSymMatrix* CtDCsp = dynamic_cast<SparseSymMatrix*>(CtDC);
-    int* krowCtDC=CtDCsp->krowM(); int* jcolCtDC=CtDCsp->jcolM(); double* dCtDC=CtDCsp->M();
-
-    for(int i=0; i<locnx; i++) {
-      pend = krowCtDC[i+1];
-      for(p=krowCtDC[i]; p<pend; p++) {
-        j = jcolCtDC[p];
-        kktd->symAddAt(i,j,-dCtDC[p], true);
-        //printf("%d %d %f\n", i,j,dCtDC[p]);
-      }
+    for(int i=locnx; i<locnx+locmz; i++) {
+        kktd->symAddAt(i,i,ssDiag[i-locnx]);
     }
   } //~end if locmz>0
   /////////////////////////////////////////////////////////////
   // update the KKT with A (symmetric update forced)
   /////////////////////////////////////////////////////////////
-  kktd->symAtPutSubmatrix( locnx, 0, prob->getLocalB(), 0, 0, locmy, locnx);
-
+  if(locmy>0){
+    kktd->symAtPutSubmatrix( locnx+locmz, 0, prob->getLocalB(), 0, 0, locmy, locnx);
+    for(int i=locnx+locmz; i<locnx+locmz+locmy; i++) {
+      kktd->symAddAt(i,i,syDiag[i-locnx-locmz]);
+    }
+  }
+  
   /////////////////////////////////////////////////////////////
-  // update the KKT zeros for the lower right block 
-  /////////////////////////////////////////////////////////////
-  //kktd->storage().atPutZeros(locnx, locnx, locmy+locmz, locmy+locmz);
-  //myAtPutZeros(kktd, locnx, locnx, locmy, locmy);
-
+  // update the KKT with C (symmetric update forced) ,  -I and dual reg
+  /////////////////////////////////////////////////////////////  
+  if(locmz>0){
+    kktd->symAtPutSubmatrix( locnx+locmz+locmy, 0, prob->getLocalD(), 0, 0, locmz, locnx);
+    for(int i=0; i<locmz; i++){
+      kktd->symAddAt(i+locnx+locmz+locmy,i+locnx,-1.0);
+      kktd->symAddAt(i+locnx+locmz+locmy,i+locnx+locmz+locmy,szDiag[i]);
+    }
+  }
+#ifdef DEBUG
+  printf("[sLinsysRoot::finalizeKKT 4] kktd: %1.10e\n",kktd->abmaxnorm());
+#endif
   stochNode->resMon.recSchurMultLocal_stop();
 }
 
@@ -229,8 +267,9 @@ const double MAX_MB_FOR_COL_BUFFERS = 100;
 
 int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
 {
+  int negEVal=0, tempNegEVal=0;
   int return_NegEval=-1;
-  printf("TO BE IMPLEMENTED: NegEVal\n");
+  int matIsSingular=0,matIsSingularAllReduce;
   EmtlDenSymMatrix& kktd = dynamic_cast<EmtlDenSymMatrix&>(*kkt);
   int nxP = locnx;
   
@@ -257,7 +296,13 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   
   // First tell children to factorize.
   for(unsigned int c=0; c<children.size(); c++) {
-    children[c]->factor2(prob->children[c], vars);
+    tempNegEVal = children[c]->factor2(prob->children[c], vars);
+    if(tempNegEVal<0) {
+      matIsSingular = 1;
+    }
+    else {
+      negEVal += tempNegEVal;
+    }
   }
   
   for (int startcol = 0; startcol < nxP; startcol += BLOCKSIZE) {
@@ -267,17 +312,25 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
       printf("startcol: %d endcol: %d\n", startcol, endcol);
     }*/
     memset(&colbuffer[0][0], 0, BLOCKSIZE*nxP*sizeof(double));
-    
+#ifdef DEBUG  
+  printf("[sLinsysRoot::factor2 -1] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
     for (unsigned int c=0; c<children.size(); c++) {
       if(children[c]->mpiComm == MPI_COMM_NULL)
       	continue;
     
       children[c]->stochNode->resMon.recFactTmChildren_start();    
+#ifdef DEBUG  
+     printf("[sLinsysRoot::factor2 argsaddCols] %d %d\n",startcol, endcol);
+#endif
       //---------------------------------------------
       children[c]->addColsToDenseSchurCompl(prob->children[c], colbuffer, startcol, endcol);
       //---------------------------------------------
       children[c]->stochNode->resMon.recFactTmChildren_stop();    
     }
+#ifdef DEBUG  
+  printf("[sLinsysRoot::factor2 0] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
 
     // only to improve timing of reduce 
     //MPI_Barrier(ctx.comm());
@@ -349,22 +402,42 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   delete [] sendbuffer;
   delete [] nr_counts;
   
+#ifdef DEBUG  
+  printf("[sLinsysRoot::factor2 1] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
   finalizeKKT(prob, vars);
+#ifdef DEBUG  
+  printf("[sLinsysRoot::factor2 2] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
   
   //double val = kktd.getVal(PROW,PCOL);
   //if (cinfo.mype == 0) {
   //  printf("(%d,%d) --- %f\n", PROW, PCOL, val);
   //}
+  MPI_Allreduce(&matIsSingular, &matIsSingularAllReduce, 1, MPI_INT, MPI_SUM, mpiComm);
 
-  factorizeKKT();
+  if(0==matIsSingularAllReduce){
+  	// all the diag mat is nonsingular
+  	MPI_Allreduce(&negEVal, &return_NegEval, 1, MPI_INT, MPI_SUM, mpiComm);
+#ifdef DEBUG  
+    printf("[sLinsysRoot::factor2 3] kktd: %1.10e\n",kktd.abmaxnorm());
+#endif
+    negEVal = factorizeKKT();
+#ifdef DEBUG  
+    printf("[sLinsysRoot::factor2 4] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
+    if(negEVal<0) {
+      return_NegEval = -1;
+    } else {
+      return_NegEval += negEVal;
+    }
+  }
 
 
 #ifdef TIMING
   afterFactor();
 #endif
-  return return_NegEval=-1;
 
+  return return_NegEval;
 }
-
-
 

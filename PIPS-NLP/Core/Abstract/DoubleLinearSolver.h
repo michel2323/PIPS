@@ -49,7 +49,7 @@ public:
 	virtual void solve ( GenMatrix& rhs ) { assert(0 && "Not implemented"); }
 
   virtual void Lsolve  ( OoqpVector& x ) {}
-  virtual void Dsolve  ( OoqpVector& x ) { solve(x);}
+  virtual void Dsolve  ( OoqpVector& x ); 
   virtual void Ltsolve ( OoqpVector& x ) {}
 
   /** Destructor  */

@@ -496,9 +496,21 @@ void sLinsys::solveCompressed( OoqpVector& rhs_ )
 #ifdef TIMING
   //double tTot=MPI_Wtime();
 #endif
+#ifdef DEBUG
+  printf("[sLinsys::solveCompressed 1] rhs: %1.2e\n",rhs.onenorm());
+#endif
   Lsolve (data,rhs); 
+#ifdef DEBUG
+  printf("[sLinsys::solveCompressed 2] rhs: %1.2e\n",rhs.onenorm());
+#endif
   Dsolve (data,rhs);
+#ifdef DEBUG
+  printf("[sLinsys::solveCompressed 3] rhs: %1.2e\n",rhs.onenorm());
+#endif
   Ltsolve(data,rhs);
+#ifdef DEBUG
+  printf("[sLinsys::solveCompressed 4] rhs: %1.2e\n",rhs.onenorm());
+#endif
 #ifdef TIMING
   //cout << "SolveCompressed took: " << (MPI_Wtime()-tTot) << endl;
 #endif
@@ -712,10 +724,22 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
     int start=it;
     int end = MIN(it+blocksize,nxP);
     int numcols = end-start;
+  #ifdef DEBUG
+    printf("NUMCOLS: %d\n", numcols);
+  #endif
     cols.getStorageRef().m = numcols; // avoid extra solves
 
     bool allzero = true;
     memset(&cols[0][0],0,N*blocksize*sizeof(double));
+  #ifdef DEBUG
+    // printf("2 SC\n");
+    // for(int j=0; j<NP;j++) {
+    //   for(int i=0; i<numcols;i++) {
+    //     printf("%lf ", SC[i][j]);
+    //   }
+    //   printf("\n");
+    // }
+  #endif
 
     if(ispardiso) {
       for(int i=0; i<N; i++) colSparsity[i]=0;
@@ -741,6 +765,15 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
 		C.getStorageRef().fromGetColBlock(start, &cols[0][locnx+locmy], N, numcols, allzero);
 	  }    
     }
+  #ifdef DEBUG
+    // printf("1\n");
+    // for(int j=0; j<N;j++) {
+    //   for(int i=0; i<numcols;i++) {
+    //     printf("%lf ", cols[i][j]);
+    //   }
+    //   printf("\n");
+    // }
+  #endif
 
     if(!allzero) {
       
@@ -748,14 +781,45 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
 		pardisoSlv->solve(cols,colSparsity);
       else 
 		solver->solve(cols);
+  #ifdef DEBUG
+    // printf("solve\n");
+    // printf("2\n");
+    // for(int j=0; j<NP;j++) {
+    //   for(int i=0; i<numcols;i++) {
+    //     printf("%lf ", SC[i][j]);
+    //   }
+    //   printf("\n");
+    // }
+  #endif
 
       if(gOuterSolve>=3 ) {
         R.getStorageRef().transMultMat( 1.0, &(SC[0][start]), numcols, NP,  
        				      -1.0, &cols[0][0], N);
+    // printf("3\n");
+    // for(int j=0; j<NP;j++) {
+    //   for(int i=0; i<numcols;i++) {
+    //     printf("%lf ", SC[i][j]);
+    //   }
+    //   printf("\n");
+    // }
         A.getStorageRef().transMultMat( 1.0, &(SC[0][start]), numcols, NP,  
        				      -1.0, &cols[0][locnx+locns], N);	
+    // printf("4\n");
+    // for(int j=0; j<NP;j++) {
+    //   for(int i=0; i<numcols;i++) {
+    //     printf("%lf ", SC[i][j]);
+    //   }
+    //   printf("\n");
+    // }
         C.getStorageRef().transMultMat( 1.0, &(SC[0][start]), numcols, NP,
        				      -1.0, &cols[0][locnx+locns+locmy], N);
+    // printf("5\n");
+    // for(int j=0; j<NP;j++) {
+    //   for(int i=0; i<numcols;i++) {
+    //     printf("%lf ", SC[i][j]);
+    //   }
+    //   printf("\n");
+    // }
 	if(mle>0)
           ET.getStorageRef().transMultMat( 1.0,  &(SC.getStorageRef().M[nx0+mz0+my0-mle][start]), numcols, NP, -1.0, &cols[0][0], N);
 	if(mli>0)
@@ -771,6 +835,15 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
        				      -1.0, &cols[0][locnx+locmy], N);
 	  }
     } //end !allzero
+#ifdef DEBUG
+    // printf("6\n");
+    // for(int j=0; j<NP;j++) {
+    //   for(int i=0; i<numcols;i++) {
+    //     printf("%d %d %lf ", j,i,SC[i][j]);
+    //   }
+    //   printf("\n");
+    // }
+#endif
   }
 
   for (int it=0; it < mle; it += blocksize)
@@ -865,6 +938,15 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
 	  assert(false && "not implemented");
 	}
       } //end !allzero
+#ifdef DEBUG
+    // printf("6+ %d %d\n",mli,mle);
+    // for(int j=0; j<NP;j++) {
+    //   for(int i=0; i<numcols;i++) {
+    //     printf("%d %d %lf ", j,i,SC[i][j]);
+    //   }
+    //   printf("\n");
+    // }
+#endif
     }
 
   if(ispardiso) delete[] colSparsity;
@@ -928,7 +1010,8 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
 				       DenseGenMatrix& out, 
 				       int startcol, int endcol) 
 {
-	assert(gOuterSolve<3 );
+	// assert(gOuterSolve<3 );
+  int locns = locmz;
 
   SparseGenMatrix& A = prob->getLocalA();
   SparseGenMatrix& C = prob->getLocalC();
@@ -936,44 +1019,103 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
 
   int ncols = endcol-startcol;
   int N, nxP, ncols_t, N_out;
-  A.getSize(N, nxP); assert(N==locmy);
+  // A.getSize(N, nxP); assert(N==locmy);
   out.getSize(ncols_t, N_out); 
-  assert(N_out == nxP);
-  assert(endcol <= nxP &&  ncols_t >= ncols);
+  // assert(N_out == nxP);
+  // assert(endcol <= nxP &&  ncols_t >= ncols);
+#ifdef DEBUG
+  printf("NUMCOLS: %d\n", endcol-startcol);
+#endif
 
-  if(nxP==-1) C.getSize(N,nxP);
+  // if(nxP==-1) C.getSize(N,nxP);
   //if(nxP==-1) nxP = NP;
 
-  N = locnx+locmy+locmz;
+  if(gOuterSolve>=3)
+    N = locnx+locns+locmy+locmz;
+  else  
+    N = locnx+locmy+locmz;
   DenseGenMatrix cols(ncols,N);
   bool allzero = true;
   memset(cols[0],0,N*ncols*sizeof(double));
-
-  R.getStorageRef().fromGetColBlock(startcol, &cols[0][0],
-				    N, endcol-startcol, allzero);
-  A.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx], 
-				    N, endcol-startcol, allzero);
-  C.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx+locmy], 
-				    N, endcol-startcol, allzero);
+  if(gOuterSolve>=3) {
+    R.getStorageRef().fromGetColBlock(startcol, &cols[0][0],
+  				    N, endcol-startcol, allzero);
+    A.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx+locns], 
+  				    N, endcol-startcol, allzero);
+    C.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx+locmy+locns], 
+  				    N, endcol-startcol, allzero);
+  }
+  else {
+    R.getStorageRef().fromGetColBlock(startcol, &cols[0][0],
+  				    N, endcol-startcol, allzero);
+    A.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx], 
+  				    N, endcol-startcol, allzero);
+    C.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx+locmy], 
+  				    N, endcol-startcol, allzero);
+  }
+#ifdef DEBUG
+    // printf("1\n");
+    // for(int j=0; j<N;j++) {
+    //   for(int i=0; i<endcol-startcol;i++) {
+    //     printf("%lf ", cols[i][j]);
+    //   }
+    //   printf("\n");
+    // }
+#endif
 
   //int mype; MPI_Comm_rank(MPI_COMM_WORLD, &mype);
   //printf("solving with multiple RHS %d \n", mype);	
   solver->solve(cols);
+
+#ifdef DEBUG
+  printf("solve\n");
+#endif
   //printf("done solving %d \n", mype);
-  
   
   const int blocksize = 20;
   
   for (int it=0; it < ncols; it += blocksize) {
     int end = MIN(it+blocksize,ncols);
     int numcols = end-it;
-    assert(false); //add Rt*x -- and test the code
+  #ifdef DEBUG
+    // printf("2\n");
+    // for(int j=0; j<N_out;j++) {
+    //   for(int i=it; i<numcols;i++) {
+    //     printf("%lf ", out[i][j]);
+    //   }
+    //   printf("\n");
+    // }
+  #endif
+  
+    // assert(false); //add Rt*x -- and test the code
     // SC-=At*y
-    A.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
-				  -1.0, &cols[it][locnx], N);
-    // SC-=Ct*z
-    C.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,
-				  -1.0, &cols[it][locnx+locmy], N);
+    if(gOuterSolve>=3) {
+      R.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
+       			-1.0, &cols[it][0], N);
+      A.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
+  				  -1.0, &cols[it][locnx+locns], N);
+      // SC-=Ct*z
+      C.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,
+  				  -1.0, &cols[it][locnx+locns+locmy], N);
+    } else {
+      R.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
+       			-1.0, &cols[it][0], N);
+      A.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
+  				  -1.0, &cols[it][locnx], N);
+      // SC-=Ct*z
+      C.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,
+  				  -1.0, &cols[it][locnx+locmy], N);
+      
+    }
+  #ifdef DEBUG
+    // printf("6\n");
+    // for(int j=0; j<N_out;j++) {
+    //   for(int i=it; i<numcols;i++) {
+    //     printf("%d %d %lf ", j, i, out[i][j]);
+    //   }
+    //   printf("\n");
+    // }
+  #endif
   }
   
 

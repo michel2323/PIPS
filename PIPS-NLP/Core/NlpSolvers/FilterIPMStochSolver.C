@@ -164,7 +164,7 @@ int FilterIPMStochSolver::solve( Data *prob_in, Variables *iterate, Residuals * 
 
     //  termination test:
     status_code = this->doStatus( prob, iterate, resid, iter, mu, 0 );
-  //  if(iter==10) status_code = SUCCESSFUL_TERMINATION;
+  // if(iter==3) status_code = SUCCESSFUL_TERMINATION;
 	if( status_code != NOT_FINISHED )
 	  break;
 
@@ -338,9 +338,9 @@ FilterIPMStochSolver::defaultStatus(Data *  data_in, Variables * /* vars */,
   if ( fullErr <= FilterIPMOpt->opt_tol){ 
 	stop_code = SUCCESSFUL_TERMINATION;
 	if(0==myRank && printlevel>0){
-	  printf("\n\n  Find Optimal solution! In Iter: %d",iterate-1);
+	  printf("\n\n  Find optimal solution! In Iter: %d",iterate-1);
 	  printf("\n  Optimal solution is: %1.7e",pObj);
-	  printf("\n  Addition Fact due to reg: %d \n",numberOfPrimalReg);
+	  printf("\n  Addition fact. due to reg: %d \n",numberOfPrimalReg);
 	}
   } else if (
     iterate-1 >= maxit ) {
@@ -348,23 +348,23 @@ FilterIPMStochSolver::defaultStatus(Data *  data_in, Variables * /* vars */,
 	if(0==myRank && printlevel>0){
 	  printf("\n\n  EXIT: Max Iter = %d \n", FilterIPMOpt->maxit);
 	  printf("\n  Last objective is: %1.7e",pObj);
-	  printf("\n  Addition Fact due to reg: %d \n",numberOfPrimalReg);	
+	  printf("\n  Addition fact. due to reg: %d \n",numberOfPrimalReg);	
 	}
   } else if ( pObj/FilterIPMOpt->df <= -1e+15) { 
 	stop_code = UNKNOWN;
 	if(0==myRank && printlevel>0){
-	  printf("\n\n  EXIT: Iterations Diverging. Problem might be unbounded.\n");
+	  printf("\n\n  EXIT: Iterations diverging. Problem might be unbounded.\n");
 	}	
   } else if ( pObj/FilterIPMOpt->df >= 1e+15   ) { 
     stop_code = UNKNOWN;
 	if(0==myRank && printlevel>0){
-	  printf("\n\n  EXIT: Iterations Diverging.\n");
+	  printf("\n\n  EXIT: Iterations diverging.\n");
 	}			
   }
 
   if ( stop_code != NOT_FINISHED){ 
   	if(0==myRank && printlevel>0){
-		printf("  Iter is accecpted due to: \n");
+		printf("  Iter is accepted due to: \n");
 		printf("							SWC and AC: %d \n", StepAcceptDueTo_SWC_AC);
 		printf("							SRC __ Obj: %d \n", StepAcceptDueTo_SRC_obj);
 		printf("							SRC __ Con: %d \n", StepAcceptDueTo_SRC_con);		

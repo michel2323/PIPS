@@ -79,7 +79,7 @@ void EmtlVector::randomize( double alpha, double beta, double * /* ix */ )
   assert( "Not implemented" && 0 );
 }
 
-void EmtlVector::copyIntoArray( double v[] ) const
+void EmtlVector::copyIntoArray( double v[] ) 
 {
   int maxsize = MaxLength(m, ctx.nprow());
   // int maxsize = utilities::MaxLocalLength(m, ctx.nprow());
@@ -423,7 +423,7 @@ double EmtlVector::stepbound(OoqpVector & svec_in,
 
 double EmtlVector::onenorm()
 {
-  assert( "Not implemented" && 0 );
+  return El::Norm(*A,El::ONE_NORM);
 }
 
 double EmtlVector::twonorm()

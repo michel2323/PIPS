@@ -85,7 +85,7 @@ public:
   virtual int somePositive( OoqpVector& select );
   virtual void divideSome( OoqpVector& div, OoqpVector& select );
   // output is the same on all processors
-  virtual void copyIntoArray( double v[] ) const;
+  virtual void copyIntoArray( double v[] );
   // same array input on all processors, no communication
   virtual void copyFromArray( double v[] );
   virtual void copyFromArray( char v[] );
@@ -95,7 +95,6 @@ public:
   //void printout(int tag);
   
   /* TO BE IMPLEMENTED */
-  virtual void copyIntoArray( double v[] ) { assert( "Not implemented" && 0 ); };
   
   virtual void findBlockingPD(OoqpVector & wstep_vec, 
             OoqpVector & u_vec, 

@@ -80,7 +80,11 @@ public:
   
   virtual void symAtPutZeros( int row, int col,
   			   int rowExtent, int colExtent );
-  
+           
+  virtual void symAtSetSubmatrix( int destRow, int destCol, DoubleMatrix& M,
+				 int srcRow, int srcCol,
+				 int rowExtent, int colExtent,bool firstCall, std::map<int,int> &ValIdxMap ); 
+
   inline int getNR() const { return mat->getNR(); }
   bool isNoop() const;
   // DEBUG USE ONLY:

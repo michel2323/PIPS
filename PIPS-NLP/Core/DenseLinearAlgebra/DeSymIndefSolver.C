@@ -112,6 +112,7 @@ int DeSymIndefSolver::matrixChanged()
   /* If matrix is dense use LAPACK, not MA57 */
   char fortranUplo = 'U';
   int info;
+  // mStorage->print()
   
   if (sparseMat) {
     std::fill(mStorage->M[0],mStorage->M[0]+n*n,0.);
@@ -126,6 +127,17 @@ int DeSymIndefSolver::matrixChanged()
       }
     }
   }
+  double before=mStorage->abmaxnorm();
+#ifdef DEBUG  
+  // printf("[DeSymIndefSolver]\n");
+  // for(int i=0;i<n;i++) {
+  //   for(int j=0;j<n;j++) {
+  //     printf("%1.4e ",mStorage->M[i][j]);
+  //   }
+  //   printf("\n");
+  // }
+#endif
+  //exit(0);
 
   //query the size of workspace
   lwork=-1;
@@ -232,6 +244,10 @@ for(int k=0; k<n; k++) {
     break;
   }
 }
+#ifdef DEBUG
+double after=mStorage->abmaxnorm();
+printf("Inertia: %d %lf %lf\n", negEigVal, before, after);
+#endif
 return negEigVal;
 }
 
@@ -242,6 +258,10 @@ void DeSymIndefSolver::solve ( OoqpVector& v )
   int one = 1;
 
   int n = mStorage->n; SimpleVector &  sv = dynamic_cast<SimpleVector &>(v);
+#ifdef DEBUG
+  //v.print();
+  printf("[DeSymIndefSolver::solve 1] norm: %f\n", v.infnorm());
+#endif
 #ifdef TIMING_FLOPS
   HPM_Start("DSYTRSSolve");
 #endif
@@ -277,6 +297,10 @@ void DeSymIndefSolver::solve ( OoqpVector& v )
     fclose(fp);
     dump1=false;
   } 
+#endif
+#ifdef DEBUG
+  //v.print();
+  printf("[DeSymIndefSolver::solve 2] norm: %f\n", v.infnorm());
 #endif
   assert(info==0);
 }

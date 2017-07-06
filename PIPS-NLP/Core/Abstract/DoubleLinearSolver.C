@@ -104,3 +104,12 @@ void StoredMatTransTimesVec::doIt(double beta, OoqpVector& y_,
   
   mMat->transMult(beta, y, alpha, x);
 }
+  void DoubleLinearSolver::Dsolve  ( OoqpVector& x ) { 
+  #ifdef DEBUG
+    printf("[DoubleLinearSolver] 1 Dsolve x: %1.2e\n", x.infnorm());
+  #endif
+    solve(x);
+  #ifdef DEBUG
+    printf("[DoubleLinearSolver] 2 Dsolve x: %1.2e\n", x.infnorm());
+  #endif
+}

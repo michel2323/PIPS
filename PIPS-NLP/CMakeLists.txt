@@ -7,7 +7,9 @@ include_directories(Core/Abstract Core/Vector Core/Utilities Core/QpGen
   Core/LinearSolvers/BiCGStabSolver
   Core/LinearSolvers/UmfPackSolver)
 include_directories(Core/StochLinearAlgebra)
+if(ELEMENTAL)
 include_directories(Core/ElementalLinearAlgebra)
+endif()
 include_directories(Core/NlpSolvers Core/NlpGen)
 include_directories(Core/NlpInfo)
 include_directories(Core/NlpStoch)
@@ -19,6 +21,11 @@ include_directories(.)
 if(HAVE_PETSC)
 include_directories(Core/PetscLinearAlgebra)
 endif(HAVE_PETSC)
+if(ELEMENTAL)
+  set(ELEMENTAL_LIBS "nlpemtl")
+else()
+  set(ELEMENTAL_LIBS "")
+endif()
 
 add_subdirectory(Core)
 add_subdirectory(Test)
@@ -49,7 +56,7 @@ if(HAVE_PETSC)
 	reducedSolverSpecial
 #    schurDecompSolver
     nlpgensparse LU_solvers
-    nlpbase nlpsparse nlpdense nlpemtl nlpstochla
+    nlpbase nlpsparse nlpdense ${ELEMENTAL_LIBS} nlpstochla
 	global_var
     ${COIN_LIBS}
     ${MA27_LIBRARY} ${MA57_LIBRARY}
@@ -68,7 +75,7 @@ if(HAVE_PETSC)
 #     ReducedSpaceSolver
 	reducedSolverSpecial
     petsc_solver_sparse
-    nlpsparse nlpdense nlpemtl 
+    nlpsparse nlpdense ${ELEMENTAL_LIBS} 
     pipsnlpFLS  nlpbase
 	global_var
 #	nlpstoch
@@ -90,7 +97,7 @@ else(HAVE_PETSC)
   target_link_libraries(pipsnlp_parallel
     genNLparallel StochInfoFromAMPL
     pipsnlpFLSStoch nlpstoch nlpstochla
-    nlpgensparse nlpbase nlpsparse nlpdense nlpemtl
+    nlpgensparse nlpbase nlpsparse nlpdense ${ELEMENTAL_LIBS}
 #    schurDecompSolver
 #    ReducedSpaceSolver blockSCSolver
 	reducedSolverSpecial
@@ -107,7 +114,7 @@ else(HAVE_PETSC)
   target_link_libraries(pipsnlp_serial
     genNLserial updateFromAMPL
     pipsnlpFLS nlpcNlpGenSparse nlpwithsolver
-    nlpgensparse nlpbase nlpsparse nlpdense nlpemtl
+    nlpgensparse nlpbase nlpsparse nlpdense ${ELEMENTAL_LIBS}
 	global_var
 #	nlpstoch
 #	nlpstochla
@@ -126,7 +133,7 @@ else(HAVE_PETSC)
 	dcopfcinput nlpstochInputBase  aggregationstoch 
     pipsnlpFLSStoch nlpstochla
     reducedSolverSpecial
-    nlpgensparse nlpbase nlpsparse nlpdense nlpemtl
+    nlpgensparse nlpbase nlpsparse nlpdense ${ELEMENTAL_LIBS}
     global_var
     ${MA27_LIBRARY} ${MA57_LIBRARY} ${METIS_LIBRARY}
     ${PARDISO_LIBRARY}
@@ -148,7 +155,7 @@ target_link_libraries(pipsnlp
   nlpgensparse
   LU_solvers
   nlpsparse 
-  nlpdense nlpemtl
+  nlpdense ${ELEMENTAL_LIBS}
   pipsnlpFLS  
   nlpbase
   global_var
@@ -176,7 +183,7 @@ add_library(parpipsnlp SHARED Drivers/parallelPipsNlp_C_Callback.cpp)
   #nlpwithsolver
   LU_solvers
   nlpsparse 
-  nlpdense nlpemtl
+  nlpdense ${ELEMENTAL_LIBS}
   pipsnlpFLSStoch 
   nlpstoch 
   nlpstochla 

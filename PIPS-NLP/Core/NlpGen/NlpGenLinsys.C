@@ -616,6 +616,7 @@ void NlpGenLinsys::solve_IterRefine(Data * prob_in, Variables *vars_in,
 
 	//compute residual of the kkt system, do IR if required;	
 	prob->linsysRes_Full = computeResidual_FullKKT(prob, kkt_resid, kkt_sol, vars);
+  
 	
     if( prob->linsysRes_Full > gIRtol){
 	  double currentRes=0, ir_iter=0; 
@@ -859,12 +860,24 @@ void NlpGenLinsys::solveCompressedAugXSYZ(OoqpVector& stepx, OoqpVector& steps,
 {
     this->joinRHSXSYZ( *rhs, stepx, steps, stepy, stepz );
 	sol->copyFrom(*rhs);
+#ifdef DEBUG
+  printf("[NlpGenLinsys 1] sol: %1.2e\n",sol->onenorm());
+#endif
     this->solveCompressed( *sol );
+#ifdef DEBUG
+  printf("[NlpGenLinsys 2] sol: %1.2e\n",sol->onenorm());
+#endif
 	
 	//use res as residual
 	res->copyFrom(*rhs);	
     //separate var and compute residual,  do IR if required;	
+#ifdef DEBUG
+  printf("[NlpGenLinsys 3] linsysRes: %1.2e\n",prob->linsysRes);
+#endif
 	prob->linsysRes = computeResidual(prob, *res, *sol, stepx, steps, stepy, stepz);
+#ifdef DEBUG
+  printf("[NlpGenLinsys 4] linsysRes: %1.2e\n",prob->linsysRes);
+#endif
 	
 	if(gDoIR_Aug==1 && prob->linsysRes > gIRtol){
 	  double currentRes=0, ir_iter=0;	
@@ -893,6 +906,9 @@ void NlpGenLinsys::solveCompressedAugXSYZ(OoqpVector& stepx, OoqpVector& steps,
 	}
 
 	prob->KryIter = KryIter;
+#ifdef DEBUG
+  printf("[NlpGenLinsys 5] linsysRes: %1.2e\n",prob->linsysRes);
+#endif
 }
 
 
@@ -1430,6 +1446,12 @@ void NlpGenLinsys::matXSYZMult( double beta,  OoqpVector& res_,
 			 OoqpVector& solz_)
 {
 
+#ifdef DEBUG
+  printf("[NlpGenLinsys] norm: %1.2e\n", data->datanorm());
+  printf("[NlpGenLinsys] res_: %1.2e\n", res_.infnorm());
+  printf("[NlpGenLinsys] sol_: %1.2e\n", sol_.infnorm());
+#endif
+  // assert(0);
   this->separateVarsXSYZ( solx_, sols_, soly_, solz_, sol_ );
   this->separateVarsXSYZ( *resx, *ress,*resy, *resz, res_);
 

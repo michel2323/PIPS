@@ -344,3 +344,26 @@ void DenseStorage::SymmetricScale( OoqpVector& scale_in )
   } // End loop over all rows in the dense matrix
 
 }
+double DenseStorage::abmaxnorm()
+{
+  double norm = 0;
+  
+  int i, j;
+  double eltNorm;
+
+  // for ( i = 0; i < m; i++ ) {
+  //   for ( j = 0; j <= i; j++ ) {
+  //     eltNorm = fabs( M[i][j] );
+  //     if ( eltNorm > norm ) norm = eltNorm;
+  //   }
+  // }
+  for ( i = 0; i < m; i++ ) {
+    for ( j = 0; j < m; j++ ) {
+      norm += M[i][j]*M[i][j];
+    }
+  }
+#ifdef DEBUG
+	printf("[DenseStorage::abmaxnorm] ABMAXNORM is wrong\n");
+#endif
+  return sqrt(norm);
+}

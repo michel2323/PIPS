@@ -11,6 +11,7 @@
 class sFactoryAugEmtl : public sFactory {
  public:
   sFactoryAugEmtl( StochInputTree* );
+  sFactoryAugEmtl( stochasticInput&, MPI_Comm comm );
  private:
   sFactoryAugEmtl( int nx_, int my_, int mz_, int nnzQ_, int nnzA_, int nnzC_ );
   sFactoryAugEmtl();

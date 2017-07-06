@@ -119,7 +119,9 @@ void sLinsysRootAug::solveReduced( sData *prob, SimpleVector& b)
   SimpleVector r3(&r[locnx+locmz], locmy); //r3 is used as a temp buffer for b3
   SimpleVector r2(&r[locnx],       locmz);
   SimpleVector r1(&r[0],           locnx);
-
+#ifdef DEBUG
+  printf("[sLinsysRootAug::solveReduced 1] b: %1.2e %lld\n",r.onenorm(), r.length());
+#endif
 
   if(gInnerSCsolve==0) {
     // Option 1. - solve with the factors
@@ -144,6 +146,9 @@ void sLinsysRootAug::solveReduced( sData *prob, SimpleVector& b)
   b3.copyFrom(r3);
   b4.copyFrom(r4);
 
+#ifdef DEBUG
+  printf("[sLinsysRootAug::solveReduced 2] b: %1.2e %lld\n",b.onenorm(), r.length());
+#endif
 #ifdef TIMING
   if(myRank==0 && gInnerSCsolve>=1)
     cout << "Root - Refin times: child=" << tchild_total << " root=" << troot_total
@@ -659,6 +664,9 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
 
   DenseSymMatrix * kktd = (DenseSymMatrix*) kkt;
   //alias for internal buffer of kkt
+#ifdef DEBUG
+  printf("[sLinsysRoot::finalizeKKT 1] kktd: %1.10e\n",kktd->abmaxnorm());
+#endif
   double** dKkt = kktd->Mat();
  
 
@@ -682,6 +690,9 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
       dKkt[j][i] += val;
     }
   }
+#ifdef DEBUG
+  printf("[sLinsysRoot::finalizeKKT 2] kktd: %1.10e\n",kkt->abmaxnorm());
+#endif
   
   /////////////////////////////////////////////////////////////
   // update the KKT with the diagonals
@@ -716,6 +727,9 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
   if(mle>0){
     kktd->symAtAddSubmatrix( locnx+locmz+locmy-mle, 0, prob->getLocalE(), 0, 0, mle, locnx, 1 );
   }
+#ifdef DEBUG
+  printf("[sLinsysRoot::finalizeKKT 3] kktd: %1.10e\n",kkt->abmaxnorm());
+#endif
   /////////////////////////////////////////////////////////////
   // update the KKT with C (symmetric update forced) ,  -I and dual reg
   /////////////////////////////////////////////////////////////  
@@ -745,6 +759,9 @@ void sLinsysRootAug::finalizeKKT(sData* prob, Variables* vars)
   //kktd->storage().atPutZeros(locnx, locnx, locmy+locmz, locmy+locmz);
   //myAtPutZeros(kktd, locnx, locnx, locmy, locmy);
 
+#ifdef DEBUG
+  printf("[sLinsysRoot::finalizeKKT 4] kktd: %1.10e\n",kktd->abmaxnorm());
+#endif
   stochNode->resMon.recSchurMultLocal_stop();
   stochNode->resMon.recFactTmLocal_stop();
 }

@@ -349,7 +349,6 @@ int PipsNlpSolve( PipsNlpProblem retval, double* obj_val, double* sol_x, UserDat
 
 		obj_val[0] = prob->objectiveValue(vars);
 
-//		std::cout << "OK: " << prob->finalIter << " Iters. \n";
 		vars->x->copyIntoArray(sol_x);
 	}
 

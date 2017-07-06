@@ -9,7 +9,11 @@
 #include "../Core/NlpInfo/StructJuMPsInfo.h"
 #include "../../Input/StructJuMPInput.h"
 #include "../Core/NlpStoch/NlpPIPSIpmInterface.h"
+#ifdef ELEMENTAL
+#include "../Core/NlpStoch/sFactoryAugEmtl.h"
+#else
 #include "../Core/NlpStoch/sFactoryAug.h"
+#endif
 #include "../Core/NlpSolvers/FilterIPMStochSolver.h"
 
 
@@ -115,7 +119,14 @@ int PipsNlpSolveStruct(PipsNlpProblemStruct* prob)
   assert(comm == MPI_COMM_WORLD);
   
   MESSAGE("before PIPSIpmInterface created .." );
+#ifdef ELEMENTAL
+  char **argv;
+  int argc=0;
+  El::Environment env( argc, argv );
+  NlpPIPSIpmInterface<sFactoryAugEmtl, FilterIPMStochSolver, StructJuMPsInfo> pipsIpm(*s,comm);
+#else
   NlpPIPSIpmInterface<sFactoryAug, FilterIPMStochSolver, StructJuMPsInfo> pipsIpm(*s,comm);
+#endif
   MESSAGE("PIPSIpmInterface created .." );
   
   if (gmyid == 0) {
@@ -159,7 +170,6 @@ int PipsNlpSolveStruct(PipsNlpProblemStruct* prob)
   gprof.t_solver_lifetime = MPI_Wtime() - stime;
   gprof.report_timing();
 #endif
-
   return ret;
 }
 

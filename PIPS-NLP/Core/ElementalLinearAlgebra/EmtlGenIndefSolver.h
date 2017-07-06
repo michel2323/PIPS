@@ -13,10 +13,12 @@ class EmtlGenIndefSolver : public DoubleLinearSolver {
   protected:
   // DistMatrix<int,VC,STAR> *p;
   El::DistPermutation p;
+  El::DistMatrix<double,MD,STAR> dSub;
+  DistMatrix<double,MC,MR> d;
+
   vector<int> image, preimage;
   int m,n;
   int nr;
-  bool needtocompose; // TODO: remove
   public:
   EmtlDenGenMatrixHandle mat;
     

@@ -197,7 +197,11 @@ assert( "Not implemented" && 0 );
 
 double EmtlDenGenMatrix::abmaxnorm()
 {
-assert( "Not implemented" && 0 );
+#ifdef DEBUG
+  printf("[EmtlDenGenMatrix::abmaxnorm] Wrong abmaxnorm\n");
+#endif
+  return El::FrobeniusNorm(*A);
+  // return El::MaxNorm(*A);
 }
 
 

@@ -190,7 +190,9 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
 	  negEVal += tempNegEVal;
 	}
   }
-
+#ifdef DEBUG
+  printf("[sLinsysRoot::factor2 -1] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
   for(size_t c=0; c<children.size(); c++) {
 #ifdef STOCH_TESTING
     g_scenNum=c;
@@ -204,6 +206,9 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
     //---------------------------------------------
     children[c]->stochNode->resMon.recFactTmChildren_stop();
   }
+#ifdef DEBUG
+  printf("[sLinsysRoot::factor2 0] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
 #ifdef TIMING
   gprof.t_initializeKKT+=MPI_Wtime()-stime;
   stime=MPI_Wtime();
@@ -222,7 +227,13 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
 #ifdef TIMING
   stochNode->resMon.recReduceTmLocal_stop();
 #endif  
+#ifdef DEBUG
+  printf("[sLinsysRoot::factor2 1] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
   finalizeKKT(prob, vars);
+#ifdef DEBUG
+  printf("[sLinsysRoot::factor2 2] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
 #ifdef TIMING
   gprof.t_finalizeKKT+=MPI_Wtime()-stime;
   stime=MPI_Wtime();
@@ -235,7 +246,13 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
   if(0==matIsSingularAllReduce){
   	// all the diag mat is nonsingular
   	MPI_Allreduce(&negEVal, &return_NegEval, 1, MPI_INT, MPI_SUM, mpiComm);
+#ifdef DEBUG
+  printf("[sLinsysRoot::factor2 3] kktd: %1.10e\n",kktd.abmaxnorm());
+#endif
 	negEVal = factorizeKKT();
+#ifdef DEBUG
+  printf("[sLinsysRoot::factor2 4] kktd: %1.2e\n",kktd.abmaxnorm());
+#endif
 #ifdef TIMING
   gprof.t_factorizeKKT+=MPI_Wtime()-stime;
   stime=MPI_Wtime();
@@ -345,6 +362,9 @@ void sLinsysRoot::Lsolve(sData *prob, OoqpVector& x)
   stochNode->resMon.eLsolve.clear();
   stochNode->resMon.recLsolveTmLocal_start();
 #endif
+#ifdef DEBUG
+  printf("[sLinsysRoot::Lsolve 1] b0: %1.2e\n",b0.onenorm());
+#endif
   solver->Lsolve(b0);
 #ifdef TIMING
   stochNode->resMon.recLsolveTmLocal_stop();
@@ -451,7 +471,13 @@ void sLinsysRoot::Dsolve( sData *prob, OoqpVector& x )
   stochNode->resMon.eDsolve.clear();
   stochNode->resMon.recDsolveTmLocal_start();
 #endif
+#ifdef DEBUG
+  printf("[sLinsysRoot::Dsolve 1] b0: %1.2e\n",b0.onenorm());
+#endif
   solveReduced(prob, b0);
+#ifdef DEBUG
+  printf("[sLinsysRoot::Dsolve 2] b0: %1.2e\n",b0.onenorm());
+#endif
 #ifdef TIMING
   stochNode->resMon.recDsolveTmLocal_stop();
 #endif
