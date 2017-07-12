@@ -207,7 +207,7 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
     children[c]->stochNode->resMon.recFactTmChildren_stop();
   }
 #ifdef DEBUG
-  printf("[sLinsysRoot::factor2 0] kktd: %1.2e\n",kktd.abmaxnorm());
+  printf("[sLinsysRoot::factor2 0] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
 #ifdef TIMING
   gprof.t_initializeKKT+=MPI_Wtime()-stime;
@@ -228,11 +228,11 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
   stochNode->resMon.recReduceTmLocal_stop();
 #endif  
 #ifdef DEBUG
-  printf("[sLinsysRoot::factor2 1] kktd: %1.2e\n",kktd.abmaxnorm());
+  printf("[sLinsysRoot::factor2 1] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
   finalizeKKT(prob, vars);
 #ifdef DEBUG
-  printf("[sLinsysRoot::factor2 2] kktd: %1.2e\n",kktd.abmaxnorm());
+  printf("[sLinsysRoot::factor2 2] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
 #ifdef TIMING
   gprof.t_finalizeKKT+=MPI_Wtime()-stime;
@@ -251,7 +251,7 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
 #endif
 	negEVal = factorizeKKT();
 #ifdef DEBUG
-  printf("[sLinsysRoot::factor2 4] kktd: %1.2e\n",kktd.abmaxnorm());
+  printf("[sLinsysRoot::factor2 4] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
 #ifdef TIMING
   gprof.t_factorizeKKT+=MPI_Wtime()-stime;

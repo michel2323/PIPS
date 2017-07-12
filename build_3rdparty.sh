@@ -2,9 +2,10 @@
 
 ## This script should help to bootstrap PIPS and build thirdparty libraries.
 
-# Number of threads used to build
-sed -e
+# exit if a command fails
+set -e
 
+# Number of threads used to build
 if [ -z $2 ]; then
   NUMTHREADS=4
 else
@@ -23,9 +24,6 @@ export CC='gcc'
 export CXX='g++'
 export CFLAGS='-O3'
 export CXXFLAGS='-O3'
-
-# exit if a command fails
-set -e
 
 cd ./ThirdPartyLibs/ASL
 ./wgetASL.sh $NUMTHREADS

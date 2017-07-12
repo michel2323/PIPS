@@ -60,12 +60,12 @@ void EmtlGenIndefSolver::solve( OoqpVector& v )
   DistMatrix<double,MC,MR> &x = *vec.A;
   #ifdef DEBUG
   // Display(x);
-  printf("[DeSymIndefSolver::solve 1] norm: %f\n", vec.infnorm());
+  printf("[DeSymIndefSolver::solve 1] norm: %f\n", vec.onenorm());
   #endif
   El::ldl::SolveAfter(A, dSub, p, x, false);
   #ifdef DEBUG
   // Display(x);
-  printf("[DeSymIndefSolver::solve 2] norm: %f\n", vec.infnorm());
+  printf("[DeSymIndefSolver::solve 2] norm: %f\n", vec.onenorm());
   #endif
 }
 

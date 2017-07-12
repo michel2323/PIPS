@@ -1448,8 +1448,8 @@ void NlpGenLinsys::matXSYZMult( double beta,  OoqpVector& res_,
 
 #ifdef DEBUG
   printf("[NlpGenLinsys] norm: %1.2e\n", data->datanorm());
-  printf("[NlpGenLinsys] res_: %1.2e\n", res_.infnorm());
-  printf("[NlpGenLinsys] sol_: %1.2e\n", sol_.infnorm());
+  printf("[NlpGenLinsys] res_: %1.2e\n", res_.onenorm());
+  printf("[NlpGenLinsys] sol_: %1.2e\n", sol_.onenorm());
 #endif
   // assert(0);
   this->separateVarsXSYZ( solx_, sols_, soly_, solz_, sol_ );

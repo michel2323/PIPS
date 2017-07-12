@@ -260,7 +260,7 @@ void DeSymIndefSolver::solve ( OoqpVector& v )
   int n = mStorage->n; SimpleVector &  sv = dynamic_cast<SimpleVector &>(v);
 #ifdef DEBUG
   //v.print();
-  printf("[DeSymIndefSolver::solve 1] norm: %f\n", v.infnorm());
+  printf("[DeSymIndefSolver::solve 1] norm: %f\n", v.onenorm());
 #endif
 #ifdef TIMING_FLOPS
   HPM_Start("DSYTRSSolve");
@@ -300,7 +300,7 @@ void DeSymIndefSolver::solve ( OoqpVector& v )
 #endif
 #ifdef DEBUG
   //v.print();
-  printf("[DeSymIndefSolver::solve 2] norm: %f\n", v.infnorm());
+  printf("[DeSymIndefSolver::solve 2] norm: %f\n", v.onenorm());
 #endif
   assert(info==0);
 }

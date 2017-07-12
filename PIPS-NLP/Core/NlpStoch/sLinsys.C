@@ -731,15 +731,6 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
 
     bool allzero = true;
     memset(&cols[0][0],0,N*blocksize*sizeof(double));
-  #ifdef DEBUG
-    // printf("2 SC\n");
-    // for(int j=0; j<NP;j++) {
-    //   for(int i=0; i<numcols;i++) {
-    //     printf("%lf ", SC[i][j]);
-    //   }
-    //   printf("\n");
-    // }
-  #endif
 
     if(ispardiso) {
       for(int i=0; i<N; i++) colSparsity[i]=0;
@@ -765,15 +756,6 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
 		C.getStorageRef().fromGetColBlock(start, &cols[0][locnx+locmy], N, numcols, allzero);
 	  }    
     }
-  #ifdef DEBUG
-    // printf("1\n");
-    // for(int j=0; j<N;j++) {
-    //   for(int i=0; i<numcols;i++) {
-    //     printf("%lf ", cols[i][j]);
-    //   }
-    //   printf("\n");
-    // }
-  #endif
 
     if(!allzero) {
       
@@ -781,45 +763,14 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
 		pardisoSlv->solve(cols,colSparsity);
       else 
 		solver->solve(cols);
-  #ifdef DEBUG
-    // printf("solve\n");
-    // printf("2\n");
-    // for(int j=0; j<NP;j++) {
-    //   for(int i=0; i<numcols;i++) {
-    //     printf("%lf ", SC[i][j]);
-    //   }
-    //   printf("\n");
-    // }
-  #endif
 
       if(gOuterSolve>=3 ) {
         R.getStorageRef().transMultMat( 1.0, &(SC[0][start]), numcols, NP,  
        				      -1.0, &cols[0][0], N);
-    // printf("3\n");
-    // for(int j=0; j<NP;j++) {
-    //   for(int i=0; i<numcols;i++) {
-    //     printf("%lf ", SC[i][j]);
-    //   }
-    //   printf("\n");
-    // }
         A.getStorageRef().transMultMat( 1.0, &(SC[0][start]), numcols, NP,  
        				      -1.0, &cols[0][locnx+locns], N);	
-    // printf("4\n");
-    // for(int j=0; j<NP;j++) {
-    //   for(int i=0; i<numcols;i++) {
-    //     printf("%lf ", SC[i][j]);
-    //   }
-    //   printf("\n");
-    // }
         C.getStorageRef().transMultMat( 1.0, &(SC[0][start]), numcols, NP,
        				      -1.0, &cols[0][locnx+locns+locmy], N);
-    // printf("5\n");
-    // for(int j=0; j<NP;j++) {
-    //   for(int i=0; i<numcols;i++) {
-    //     printf("%lf ", SC[i][j]);
-    //   }
-    //   printf("\n");
-    // }
 	if(mle>0)
           ET.getStorageRef().transMultMat( 1.0,  &(SC.getStorageRef().M[nx0+mz0+my0-mle][start]), numcols, NP, -1.0, &cols[0][0], N);
 	if(mli>0)
@@ -952,54 +903,6 @@ void sLinsys::addTermToDenseSchurCompl(sData *prob,
   if(ispardiso) delete[] colSparsity;
 }
 
-
-/* this is the original code that was doing one column at a time. */
-/* 
-void sLinsys::addTermToDenseSchurCompl(sData *prob, 
-				       DenseSymMatrix& SC) 
-{
-  SparseGenMatrix& A = prob->getLocalA();
-  SparseGenMatrix& C = prob->getLocalC();
-  SparseGenMatrix& R = prob->getLocalCrossHessian();
-
-  int N, nxP, NP;
-  A.getSize(N, nxP); assert(N==locmy);
-  NP = SC.size(); assert(NP>=nxP);
-
-  if(nxP==-1) C.getSize(N,nxP);
-  if(nxP==-1) nxP = NP;
-  N = locnx+locmy+locmz;
-
-  SimpleVector col(N);
-
-  for(int it=0; it<nxP; it++) {
-    
-    double* pcol = &col[0];
-    for(int it1=0; it1<locnx; it1++) pcol[it1]=0.0;
-
-    R.fromGetDense(0, it, &col[0],           1, locnx, 1);
-    A.fromGetDense(0, it, &col[locnx],       1, locmy, 1);    
-    C.fromGetDense(0, it, &col[locnx+locmy], 1, locmz, 1);
-
-    solver->solve(col);
-
-    //here we have colGi = inv(H_i)* it-th col of Gi^t
-     //now do colSC = Gi * inv(H_i)* it-th col of Gi^t
- 
-    // SC+=R*x
-    R.transMult( 1.0, &SC[it][0],     1,
-		 -1.0, &col[0],      1);
-
-    // SC+=At*y
-    A.transMult( 1.0, &SC[it][0],   1,  
-		-1.0, &col[locnx],  1);
-    // SC+=Ct*z
-    C.transMult( 1.0, &SC[it][0],   1,
-		-1.0, &col[locnx+locmy], 1);
-
-  }
-}*/
- 
 #include <set>
 #include <algorithm>
 
@@ -1023,9 +926,6 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
   out.getSize(ncols_t, N_out); 
   // assert(N_out == nxP);
   // assert(endcol <= nxP &&  ncols_t >= ncols);
-#ifdef DEBUG
-  printf("NUMCOLS: %d\n", endcol-startcol);
-#endif
 
   // if(nxP==-1) C.getSize(N,nxP);
   //if(nxP==-1) nxP = NP;
@@ -1053,15 +953,6 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
     C.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx+locmy], 
   				    N, endcol-startcol, allzero);
   }
-#ifdef DEBUG
-    // printf("1\n");
-    // for(int j=0; j<N;j++) {
-    //   for(int i=0; i<endcol-startcol;i++) {
-    //     printf("%lf ", cols[i][j]);
-    //   }
-    //   printf("\n");
-    // }
-#endif
 
   //int mype; MPI_Comm_rank(MPI_COMM_WORLD, &mype);
   //printf("solving with multiple RHS %d \n", mype);	
@@ -1072,20 +963,14 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
 #endif
   //printf("done solving %d \n", mype);
   
-  const int blocksize = 20;
+  const int blocksize = ncols;
   
   for (int it=0; it < ncols; it += blocksize) {
     int end = MIN(it+blocksize,ncols);
     int numcols = end-it;
-  #ifdef DEBUG
-    // printf("2\n");
-    // for(int j=0; j<N_out;j++) {
-    //   for(int i=it; i<numcols;i++) {
-    //     printf("%lf ", out[i][j]);
-    //   }
-    //   printf("\n");
-    // }
-  #endif
+#ifdef DEBUG
+  printf("NUMCOLS: %d\n", numcols);
+#endif
   
     // assert(false); //add Rt*x -- and test the code
     // SC-=At*y
