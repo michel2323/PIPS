@@ -272,6 +272,8 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   int matIsSingular=0,matIsSingularAllReduce;
   EmtlDenSymMatrix& kktd = dynamic_cast<EmtlDenSymMatrix&>(*kkt);
   int nxP = locnx;
+  if(locmz>0) nxP=nxP+2*locmz;
+  if(locmy>0) nxP=nxP+locmy;
   
   const int BLOCKSIZE = MIN((1048576*MAX_MB_FOR_COL_BUFFERS/
                             (2*sizeof(double)*nxP)),nxP);
@@ -329,7 +331,7 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
       children[c]->stochNode->resMon.recFactTmChildren_stop();    
     }
 #ifdef DEBUG  
-  printf("[sLinsysRoot::factor2 0] kktd: %1.2e\n",kktd.abmaxnorm());
+  printf("[sLinsysRoot::factor2 0] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
 
     // only to improve timing of reduce 
@@ -403,11 +405,11 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   delete [] nr_counts;
   
 #ifdef DEBUG  
-  printf("[sLinsysRoot::factor2 1] kktd: %1.2e\n",kktd.abmaxnorm());
+  printf("[sLinsysRoot::factor2 1] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
   finalizeKKT(prob, vars);
 #ifdef DEBUG  
-  printf("[sLinsysRoot::factor2 2] kktd: %1.2e\n",kktd.abmaxnorm());
+  printf("[sLinsysRoot::factor2 2] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
   
   //double val = kktd.getVal(PROW,PCOL);
@@ -424,7 +426,7 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
 #endif
     negEVal = factorizeKKT();
 #ifdef DEBUG  
-    printf("[sLinsysRoot::factor2 4] kktd: %1.2e\n",kktd.abmaxnorm());
+    printf("[sLinsysRoot::factor2 4] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
     if(negEVal<0) {
       return_NegEval = -1;

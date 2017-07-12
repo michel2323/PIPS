@@ -106,10 +106,10 @@ void StoredMatTransTimesVec::doIt(double beta, OoqpVector& y_,
 }
   void DoubleLinearSolver::Dsolve  ( OoqpVector& x ) { 
   #ifdef DEBUG
-    printf("[DoubleLinearSolver] 1 Dsolve x: %1.2e\n", x.infnorm());
+    printf("[DoubleLinearSolver] 1 Dsolve x: %1.2e\n", x.onenorm());
   #endif
     solve(x);
   #ifdef DEBUG
-    printf("[DoubleLinearSolver] 2 Dsolve x: %1.2e\n", x.infnorm());
+    printf("[DoubleLinearSolver] 2 Dsolve x: %1.2e\n", x.onenorm());
   #endif
 }
