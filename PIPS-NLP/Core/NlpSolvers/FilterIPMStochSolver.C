@@ -338,9 +338,9 @@ FilterIPMStochSolver::defaultStatus(Data *  data_in, Variables * /* vars */,
   if ( fullErr <= FilterIPMOpt->opt_tol){ 
 	stop_code = SUCCESSFUL_TERMINATION;
 	if(0==myRank && printlevel>0){
-	  printf("\n\n  Find optimal solution! In Iter: %d",iterate-1);
+	  printf("\n\n  Found optimal solution! In iteration: %d",iterate-1);
 	  printf("\n  Optimal solution is: %1.7e",pObj);
-	  printf("\n  Addition fact. due to reg: %d \n",numberOfPrimalReg);
+	  printf("\n  Additional fact. due to reg.: %d \n",numberOfPrimalReg);
 	}
   } else if (
     iterate-1 >= maxit ) {
@@ -364,7 +364,7 @@ FilterIPMStochSolver::defaultStatus(Data *  data_in, Variables * /* vars */,
 
   if ( stop_code != NOT_FINISHED){ 
   	if(0==myRank && printlevel>0){
-		printf("  Iter is accepted due to: \n");
+		printf("  Iteration is accepted due to: \n");
 		printf("							SWC and AC: %d \n", StepAcceptDueTo_SWC_AC);
 		printf("							SRC __ Obj: %d \n", StepAcceptDueTo_SRC_obj);
 		printf("							SRC __ Con: %d \n", StepAcceptDueTo_SRC_con);		
