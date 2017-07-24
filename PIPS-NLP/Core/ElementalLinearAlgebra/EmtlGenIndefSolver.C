@@ -17,6 +17,7 @@ EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenGenMatrix *mat)
 // The diagonal of the LDL fact. has to be on the same grid
   DistMatrix<double,MC,MR> &A = *mat->A;
   dSub.SetGrid(A.Grid());
+  d.SetGrid(A.Grid());
 }
 
 EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenSymMatrix *mat_ )
@@ -29,6 +30,7 @@ EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenSymMatrix *mat_ )
 // The diagonal of the LDL fact. has to be on the same grid
   DistMatrix<double,MC,MR> &A = *mat->A;
   dSub.SetGrid(A.Grid());
+  d.SetGrid(A.Grid());
 }
 
 void EmtlGenIndefSolver::diagonalChanged( int idiag, int extent )
