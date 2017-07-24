@@ -42,7 +42,7 @@ sFactoryAugEmtl::sFactoryAugEmtl( stochasticInput& in, MPI_Comm comm)
   MPI_Comm_size(comm, &emtlprocs);
   // int emtlprocs = StochResourcePlanner::noScaProcesses;
 #ifdef DEBUG
-  printf("[sFactoryAugEmtl::sFactoryAugEmtl] emtlprocs: %d\n", emtlprocs);
+  printf("[sFactoryAugEmtl::sFactoryAugEmtl] comm: %d\n", emtlprocs);
 #endif
   ctx = new EmtlContext(comm, emtlprocs);
   

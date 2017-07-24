@@ -34,7 +34,8 @@ class EmtlContext {
   inline int npcol() const { return _npcol; }
   // number of rows in processor grid
   inline int nprow() const { return _nprow; }
-  inline MPI_Comm comm() const { return mpicomm; }
+  inline MPI_Comm comm() const { return intracomm; }
+  inline MPI_Comm intercomm() const { return _intercomm; }
   inline Grid& grid() const { assert(!_noop); return *_grid; }
   // No-op, true if this processor isn't used for elemental
   inline bool noop() const { return _noop; }
@@ -61,7 +62,7 @@ class EmtlContext {
   inline bool usingTorus() const { return _usingTorus; }
 
   protected:
-  MPI_Comm mpicomm, emtlcomm;
+  MPI_Comm intracomm, _intercomm;
   int _mype;
   int _nprocs;
   int _myrow;

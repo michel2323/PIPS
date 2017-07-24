@@ -14,6 +14,9 @@ EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenGenMatrix *mat)
   
   mat->getSize(m,n);
   assert(m==n);
+// The diagonal of the LDL fact. has to be on the same grid
+  DistMatrix<double,MC,MR> &A = *mat->A;
+  dSub.SetGrid(A.Grid());
 }
 
 EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenSymMatrix *mat_ )
@@ -23,6 +26,9 @@ EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenSymMatrix *mat_ )
   
   mat->getSize(m,n);
   assert(m==n);
+// The diagonal of the LDL fact. has to be on the same grid
+  DistMatrix<double,MC,MR> &A = *mat->A;
+  dSub.SetGrid(A.Grid());
 }
 
 void EmtlGenIndefSolver::diagonalChanged( int idiag, int extent )
@@ -46,7 +52,7 @@ int EmtlGenIndefSolver::matrixChanged()
   InertiaType inertia=El::ldl::Inertia(d,dSub);
   negEigVal=inertia.numNegative;
 #ifdef DEBUG
-  printf("Inertia: %d %lf %lf \n", negEigVal, before, after);
+  printf("Inertia: %d %lf %lf %lf\n", negEigVal, before, after, El::FrobeniusNorm(A));
 #endif
   return negEigVal;
 }
@@ -60,12 +66,11 @@ void EmtlGenIndefSolver::solve( OoqpVector& v )
   DistMatrix<double,MC,MR> &x = *vec.A;
   #ifdef DEBUG
   // Display(x);
-  printf("[DeSymIndefSolver::solve 1] norm: %f\n", vec.onenorm());
+  printf("[DeSymIndefSolver::solve 1] norm: %f %lf\n", El::FrobeniusNorm(x), El::FrobeniusNorm(A));
   #endif
   El::ldl::SolveAfter(A, dSub, p, x, false);
   #ifdef DEBUG
-  // Display(x);
-  printf("[DeSymIndefSolver::solve 2] norm: %f\n", vec.onenorm());
+  printf("[DeSymIndefSolver::solve 2] norm: %f %f\n", mat->abmaxnorm(), vec.onenorm());
   #endif
 }
 

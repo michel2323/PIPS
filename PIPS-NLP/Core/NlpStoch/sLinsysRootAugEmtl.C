@@ -98,7 +98,7 @@ void sLinsysRootAugEmtl::solveReduced( sData *prob, SimpleVector& b)
   assert(r.length() == b.length());
   SparseGenMatrix& C = prob->getLocalD();
 #ifdef DEBUG
-  printf("[sLinsysRootAugEmtl::solveReduced 1] b: %1.2e\n",b.onenorm());
+  printf("[sLinsysRootAugEmtl::solveReduced 1] b: %1.10e\n",b.onenorm());
 #endif
 
   stochNode->resMon.recDsolveTmLocal_start();
@@ -162,7 +162,7 @@ void sLinsysRootAugEmtl::solveReduced( sData *prob, SimpleVector& b)
   b3.copyFrom(r3);
   b4.copyFrom(r4);
 #ifdef DEBUG  
-  printf("[sLinsysRootAugEmtl::solveReduced 2] b: %1.2e %d %lld\n",b.onenorm(), realRhs.getLocalSize(), r.length());
+  printf("[sLinsysRootAugEmtl::solveReduced 2] b: %1.10e %d %lld\n",b.onenorm(), realRhs.getLocalSize(), r.length());
 #endif
   stochNode->resMon.recDsolveTmLocal_stop();
 
@@ -373,6 +373,7 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
     stochNode->resMon.recReduceScatterTmLocal_start();
     MPI_Reduce_scatter(sendbuffer, recvbuffer, recvcounts, MPI_DOUBLE, 
       MPI_SUM, ctx.comm());
+    MPI_Allreduce(MPI_IN_PLACE, recvbuffer, recvcounts[ctx.mype()], MPI_DOUBLE, MPI_SUM, ctx.intercomm());
     stochNode->resMon.recReduceScatterTmLocal_stop();
 
 

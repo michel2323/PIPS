@@ -497,19 +497,19 @@ void sLinsys::solveCompressed( OoqpVector& rhs_ )
   //double tTot=MPI_Wtime();
 #endif
 #ifdef DEBUG
-  printf("[sLinsys::solveCompressed 1] rhs: %1.2e\n",rhs.onenorm());
+  printf("[sLinsys::solveCompressed 1] rhs: %1.10e\n",rhs.onenorm());
 #endif
   Lsolve (data,rhs); 
 #ifdef DEBUG
-  printf("[sLinsys::solveCompressed 2] rhs: %1.2e\n",rhs.onenorm());
+  printf("[sLinsys::solveCompressed 2] rhs: %1.10e\n",rhs.onenorm());
 #endif
   Dsolve (data,rhs);
 #ifdef DEBUG
-  printf("[sLinsys::solveCompressed 3] rhs: %1.2e\n",rhs.onenorm());
+  printf("[sLinsys::solveCompressed 3] rhs: %1.10e\n",rhs.onenorm());
 #endif
   Ltsolve(data,rhs);
 #ifdef DEBUG
-  printf("[sLinsys::solveCompressed 4] rhs: %1.2e\n",rhs.onenorm());
+  printf("[sLinsys::solveCompressed 4] rhs: %1.10e\n",rhs.onenorm());
 #endif
 #ifdef TIMING
   //cout << "SolveCompressed took: " << (MPI_Wtime()-tTot) << endl;
