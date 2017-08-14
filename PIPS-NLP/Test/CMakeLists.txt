@@ -1,5 +1,7 @@
 include_directories(../)
-link_directories(../../ThirdPartyLibs/Elemental/lib)
+if(ELEMENTAL)
+  link_directories(${EMTL_LIB_PATH})
+endif()
 
 # a testing example for PIPSNLP parallel structure interface
 add_executable(parmodel1yk parmodel1yk.cpp)
