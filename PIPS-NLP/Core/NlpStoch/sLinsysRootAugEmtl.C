@@ -9,9 +9,16 @@
 #include "EmtlSymPSDSolver.h"
 #include "EmtlVector.h"
 
+#ifdef TIMING
+#include "../../global_var.h"
+#include "../PIPS-NLP/Core/Utilities/PerfMetrics.h"
+#endif
+
 #ifdef STOCH_TESTING
 extern double g_iterNumber;
+extern double g_scenNum;
 #endif
+
 extern int gInnerSCsolve;
 extern int gOuterSolve;
 
@@ -270,6 +277,12 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   int negEVal=0, tempNegEVal=0;
   int return_NegEval=-1;
   int matIsSingular=0,matIsSingularAllReduce;
+#ifdef TIMING
+  double stime=MPI_Wtime();
+  double stime1=MPI_Wtime();
+  gprof.n_factor2++;
+#endif
+
   EmtlDenSymMatrix& kktd = dynamic_cast<EmtlDenSymMatrix&>(*kkt);
   int nxP = locnx;
   if(locmz>0) nxP=nxP+2*locmz;
@@ -288,7 +301,7 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   }
   int max_nr = MaxLength(nxP, ctx.nprow());
 
-  DenseGenMatrix colbuffer(BLOCKSIZE, nxP);
+  DenseGenMatrix colbuffer(2*BLOCKSIZE, nxP);
   double *recvbuffer = new double[max_nr*BLOCKSIZE];
   double *sendbuffer = new double[nxP*BLOCKSIZE];
   int *recvcounts = new int[ctx.nprocs()];
@@ -298,6 +311,9 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   
   // First tell children to factorize.
   for(unsigned int c=0; c<children.size(); c++) {
+#ifdef STOCH_TESTING
+    g_scenNum=c;
+#endif
     tempNegEVal = children[c]->factor2(prob->children[c], vars);
     if(tempNegEVal<0) {
       matIsSingular = 1;
@@ -306,14 +322,20 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
       negEVal += tempNegEVal;
     }
   }
+#ifdef TIMING
+  gprof.t_initializeKKT+=MPI_Wtime()-stime;
+#endif
   
   for (int startcol = 0; startcol < nxP; startcol += BLOCKSIZE) {
+#ifdef TIMING
+    stime=MPI_Wtime();
+#endif
     int endcol = MIN(startcol+BLOCKSIZE, nxP); // exclusive
     int numcols = endcol-startcol;
     /*if (ctx.mype() == 0) {
       printf("startcol: %d endcol: %d\n", startcol, endcol);
     }*/
-    memset(&colbuffer[0][0], 0, BLOCKSIZE*nxP*sizeof(double));
+    memset(&colbuffer[0][0], 0, 2*BLOCKSIZE*nxP*sizeof(double));
 #ifdef DEBUG  
   printf("[sLinsysRoot::factor2 -1] kktd: %1.2e\n",kktd.abmaxnorm());
 #endif
@@ -330,6 +352,10 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
       //---------------------------------------------
       children[c]->stochNode->resMon.recFactTmChildren_stop();    
     }
+#ifdef TIMING
+    gprof.t_initializeKKT+=MPI_Wtime()-stime;
+    stime=MPI_Wtime();
+#endif
 #ifdef DEBUG  
   printf("[sLinsysRoot::factor2 0] kktd: %1.10e\n",kktd.abmaxnorm());
 #endif
@@ -371,8 +397,13 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
     }
 
     stochNode->resMon.recReduceScatterTmLocal_start();
+    
     MPI_Reduce_scatter(sendbuffer, recvbuffer, recvcounts, MPI_DOUBLE, 
       MPI_SUM, ctx.comm());
+#ifdef TIMING
+    gprof.t_reduceKKTonnode+=MPI_Wtime()-stime;
+    stime=MPI_Wtime();
+#endif
     MPI_Allreduce(MPI_IN_PLACE, recvbuffer, recvcounts[ctx.mype()], MPI_DOUBLE, MPI_SUM, ctx.intercomm());
     stochNode->resMon.recReduceScatterTmLocal_stop();
 
@@ -395,6 +426,9 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
     }
 
     stochNode->resMon.recReduceTmLocal_stop(); 
+#ifdef TIMING
+    gprof.t_reduceKKTinternode+=MPI_Wtime()-stime;
+#endif
 
     
   }
@@ -404,6 +438,9 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   delete [] recvbuffer;
   delete [] sendbuffer;
   delete [] nr_counts;
+#ifdef TIMING
+  stime=MPI_Wtime();
+#endif
   
 #ifdef DEBUG  
   printf("[sLinsysRoot::factor2 1] kktd: %1.10e\n",kktd.abmaxnorm());
@@ -411,6 +448,10 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   finalizeKKT(prob, vars);
 #ifdef DEBUG  
   printf("[sLinsysRoot::factor2 2] kktd: %1.10e\n",kktd.abmaxnorm());
+#endif
+#ifdef TIMING
+  gprof.t_finalizeKKT+=MPI_Wtime()-stime;
+  stime=MPI_Wtime();
 #endif
   
   //double val = kktd.getVal(PROW,PCOL);
@@ -439,6 +480,7 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
 
 #ifdef TIMING
   afterFactor();
+  gprof.t_factorizeKKT+=MPI_Wtime()-stime;
 #endif
 
   return return_NegEval;

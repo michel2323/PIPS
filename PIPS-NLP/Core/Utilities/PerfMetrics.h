@@ -23,7 +23,11 @@ private:
 		t_factorNoMatChange(0.0), t_computeRegularization(0.0),
 		t_factorNoMatChange2(0.0), t_factor2(0.0), t_factor2_total(0.0),
 		t_factor_rest(0.0),
-		t_initializeKKT(0.0), t_reduceKKT(0.0), t_factorizeKKT(0.0), t_finalizeKKT(0.0),
+		t_initializeKKT(0.0), 
+		t_reduceKKTonnode(0.0), 
+		t_reduceKKTinternode(0.0), 
+		t_reduceKKT(0.0), 
+		t_factorizeKKT(0.0), t_finalizeKKT(0.0),
 		n_prob_info(0), n_init_x0(0), n_feval(0), n_eval_g(0), n_grad_f(0),
 		n_jac_g(0), n_laghess(0), n_write_solution(0), n_factor2(0)
 	{
@@ -59,6 +63,8 @@ public:
 	double t_factorNoMatChange2;
 	double t_factor2;
 	double t_initializeKKT;
+	double t_reduceKKTonnode;
+	double t_reduceKKTinternode;
 	double t_reduceKKT;
 	double t_factorizeKKT;
 	double t_finalizeKKT;
