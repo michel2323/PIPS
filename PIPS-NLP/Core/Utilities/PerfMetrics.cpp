@@ -61,6 +61,8 @@ std::ostream& operator<<(std::ostream& os, const PerfMetrics& p)
 #ifdef ELEMENTAL
 			<<"t_reduceKKTonnode "<< p.t_reduceKKTonnode << std::endl
 			<<"t_reduceKKTinternode "<< p.t_reduceKKTinternode << std::endl
+			<<"n_colbuffer "<< p.n_colbuffer << std::endl
+			<<"n_kkt "<< p.n_kkt << std::endl
 #else
 			<<"t_reduceKKT "<< p.t_reduceKKT << std::endl
 #endif

@@ -78,6 +78,9 @@ sLinsysRootAugEmtl::createKKT(sData* prob)
   }else{
     n = locnx+locmy+locmz+locmz;
   }
+#ifdef TIMING
+  gprof.n_kkt=((long int) n*(long int)n*8)/(1024*1024);
+#endif
   return new EmtlDenSymMatrix(n, ctx);
 }
 
@@ -290,6 +293,9 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   
   const int BLOCKSIZE = MIN((1048576*MAX_MB_FOR_COL_BUFFERS/
                             (2*sizeof(double)*nxP)),nxP);
+#ifdef TIMING
+  gprof.n_colbuffer=((2*BLOCKSIZE)*nxP*8)/(1024*1024);
+#endif
 
   initializeKKT(prob, vars);
   // we're only sending upper Q block,
