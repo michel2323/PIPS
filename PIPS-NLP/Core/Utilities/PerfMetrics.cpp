@@ -58,7 +58,14 @@ std::ostream& operator<<(std::ostream& os, const PerfMetrics& p)
 			<<"In factor2()"<< std::endl
 			<<"------------------"<< std::endl
 			<<"t_initializeKKT "<< p.t_initializeKKT << std::endl
+#ifdef ELEMENTAL
+			<<"t_reduceKKTonnode "<< p.t_reduceKKTonnode << std::endl
+			<<"t_reduceKKTinternode "<< p.t_reduceKKTinternode << std::endl
+			<<"n_colbuffer "<< p.n_colbuffer << std::endl
+			<<"n_kkt "<< p.n_kkt << std::endl
+#else
 			<<"t_reduceKKT "<< p.t_reduceKKT << std::endl
+#endif
 			<<"t_finalizeKKT "<< p.t_finalizeKKT << std::endl
 			<<"t_factorizeKKT "<< p.t_factorizeKKT << std::endl
 			<<"t_factor2_total "<< p.t_factor2_total << std::endl

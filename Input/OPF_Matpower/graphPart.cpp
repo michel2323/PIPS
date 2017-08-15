@@ -95,17 +95,19 @@ graphPart::_ReadGraph(const char gfilename[])
   char *save_ptr=NULL;  
 
   int i,j;
+	char *ret=NULL;
 
   FILE *gfile;
   gfile = fopen(gfilename, "r");
 
   /* scan First Line to get number of nodes and lines */
-  fgets(myString, 10000, gfile);
+  ret=fgets(myString, 10000, gfile);
 
   p = strtok_r(myString, " ",&save_ptr);
   num_node = atoi(p);
 
-  printf("token:% s", p);
+  // printf("token:% s", p);
+  printf("token:%s", p);
 
   
   p = strtok_r(NULL, " \n",&save_ptr);
@@ -129,7 +131,7 @@ graphPart::_ReadGraph(const char gfilename[])
 
   for(i=0;i<num_node;i++){
 
-  	fgets(myString, 10000, gfile);
+  	ret=fgets(myString, 10000, gfile);
 	p = strtok_r(myString, " \n",&save_ptr);
 
 	printf("token: %s", p);

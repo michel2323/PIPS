@@ -174,15 +174,16 @@ void DCPS::PSReadDCData(const char netfile[])
   int tempID=0;
   int tempInt=0;
   int tempDouble=0;
+	char *ret=NULL;
   
   fp = fopen(netfile,"r");
   for(i=0;i<line_counter;i++) {
-    fgets(fileline,PS_MAXLINE,fp);
+    ret=fgets(fileline,PS_MAXLINE,fp);
 
 	/* Read bus data */
     if((i >= bus_start_line) && (i < bus_end_line)) {
 	  tempID=0;
-      sscanf(fileline,"%*s %d %lf %*lf %*lf %*lf",		\
+      sscanf(fileline,"%*s %d %lf %*f %*f %*f",		\
 	     &tempInt,&Bus[busi].loads);
 
 	  Bus[busi].bus_i      = busi;
@@ -193,7 +194,7 @@ void DCPS::PSReadDCData(const char netfile[])
 
     /* Read generator data */
     if(i >= gen_start_line && i < gen_end_line) {
-      sscanf(fileline,"%*d %d %lf %lf %*lf %*lf %lf %lf %lf", \
+      sscanf(fileline,"%*d %d %lf %lf %*f %*f %lf %lf %lf", \
 	  	 &Gen[geni].bus_i, \
 	     &Gen[geni].pt,&Gen[geni].pb,&Gen[geni].cost_gamma,&Gen[geni].cost_beta,&Gen[geni].cost_alpha);
 
@@ -202,7 +203,7 @@ void DCPS::PSReadDCData(const char netfile[])
 	
     /* Read line data */
     if(i >= br_start_line && i < br_end_line) {
-      sscanf(fileline,"%*d %d %d %lf %lf %*lf %lf %*lf %*d", \
+      sscanf(fileline,"%*d %d %d %lf %lf %*f %lf %*f %*d", \
 	  	 &Branch[bri].fbus, &Branch[bri].tbus, \
 	     &Branch[bri].resistance, &Branch[bri].reactance,		 \
 	     &Branch[bri].flowLimit);
