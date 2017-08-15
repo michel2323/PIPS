@@ -8,6 +8,8 @@
 #include <sys/resource.h>
 #include <iostream>
 
+using namespace LDLPivotTypeNS;
+
 EmtlGenIndefSolver::EmtlGenIndefSolver( EmtlDenGenMatrix *mat)
 {
   SpReferTo(this->mat, mat);
@@ -48,7 +50,8 @@ int EmtlGenIndefSolver::matrixChanged()
   // El::Display(A);
 #endif
   double before=mat->abmaxnorm();
-  El::LDL( A, dSub, p, false, El::BUNCH_KAUFMAN_A);
+  El::LDL( A, dSub, p, false);
+  //El::LDL( A, dSub,p);
   double after=mat->abmaxnorm();
   GetDiagonal(A,d);
   InertiaType inertia=El::ldl::Inertia(d,dSub);
