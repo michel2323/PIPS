@@ -174,15 +174,16 @@ void DCPS::PSReadDCData(const char netfile[])
   int tempID=0;
   int tempInt=0;
   int tempDouble=0;
+	char *ret=NULL;
   
   fp = fopen(netfile,"r");
   for(i=0;i<line_counter;i++) {
-    fgets(fileline,PS_MAXLINE,fp);
+    ret=fgets(fileline,PS_MAXLINE,fp);
 
 	/* Read bus data */
     if((i >= bus_start_line) && (i < bus_end_line)) {
 	  tempID=0;
-      sscanf(fileline,"%*s %d %lf %*lf %*f %*f",		\
+      sscanf(fileline,"%*s %d %lf %*f %*f %*f",		\
 	     &tempInt,&Bus[busi].loads);
 
 	  Bus[busi].bus_i      = busi;
