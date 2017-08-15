@@ -79,6 +79,9 @@ sLinsysRootAugEmtl::createKKT(sData* prob)
     n = locnx+locmy+locmz+locmz;
   }
 #ifdef TIMING
+  if(ctx.mype()==0) {
+    cout << "1st stage matrix size: " << locnx << " " << locmy << " " << locmz << " " << n << endl;
+  }
   gprof.n_kkt=((long int) n*(long int)n*8)/(1024*1024);
 #endif
   return new EmtlDenSymMatrix(n, ctx);
