@@ -1142,6 +1142,9 @@ void StochVector::dumpToFile(std::string name, int nchild, int giterNum) {
   std::stringstream fname;
   fname << "global" << name << nchild << "_" << giterNum << ".dmp";
   FILE *fp=fopen((fname.str()).c_str(),"w");
+	if(!fp) {
+		perror((fname.str()).c_str());
+	}
   int ione=1;
   fwrite(&n, sizeof(int), 1, fp);
   fwrite(&ione, sizeof(int), 1, fp);

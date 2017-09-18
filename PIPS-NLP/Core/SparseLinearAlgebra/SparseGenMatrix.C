@@ -530,6 +530,9 @@ void SparseGenMatrix::dumpToFile(std::string name, int nchild, int giterNum) {
   fname << "global" << name << nchild << "_" << giterNum << ".dmp";
   //std::string sfname=fname.std();
   FILE *fp=fopen((fname.str()).c_str(),"w");
+	if(!fp) {
+		perror((fname.str()).c_str());
+	}
   this->fromGetDense(0, 0, A, lda, m, n);
   fwrite(&m, sizeof(int), 1, fp);
   fwrite(&n, sizeof(int), 1, fp);

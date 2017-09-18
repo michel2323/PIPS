@@ -509,6 +509,9 @@ void StochGenMatrix::dumpToFile(std::string name, int nchild, int giterNum) {
   fname << "global" << name << nchild << "_" << giterNum << ".dmp";
   //std::string sfname=fname.std();
   FILE *fp=fopen((fname.str()).c_str(),"w");
+	if(!fp) {
+		perror((fname.str()).c_str());
+	}
   int lda;
   if(m>n) lda=m;
   else lda=n;
