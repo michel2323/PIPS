@@ -291,13 +291,14 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
 
   EmtlDenSymMatrix& kktd = dynamic_cast<EmtlDenSymMatrix&>(*kkt);
   int nxP = locnx;
-  if(locmz>0) nxP=nxP+2*locmz;
-  if(locmy>0) nxP=nxP+locmy;
+  //if(locmz>0) nxP=nxP+2*locmz;
+  //if(locmy>0) nxP=nxP+locmy;
   
-  const int BLOCKSIZE = MIN((1048576*MAX_MB_FOR_COL_BUFFERS/
+  int BLOCKSIZE = MIN((1048576*MAX_MB_FOR_COL_BUFFERS/
                             (2*sizeof(double)*nxP)),nxP);
+  BLOCKSIZE=nxP;
 #ifdef TIMING
-  gprof.n_colbuffer=((2*BLOCKSIZE)*nxP*8)/(1024*1024);
+  gprof.n_colbuffer=((BLOCKSIZE)*nxP*8)/(1024*1024);
 #endif
 
   initializeKKT(prob, vars);
@@ -310,7 +311,7 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   }
   int max_nr = MaxLength(nxP, ctx.nprow());
 
-  DenseGenMatrix colbuffer(2*BLOCKSIZE, nxP);
+  DenseGenMatrix colbuffer(BLOCKSIZE, nxP);
   double *recvbuffer = new double[max_nr*BLOCKSIZE];
   double *sendbuffer = new double[nxP*BLOCKSIZE];
   int *recvcounts = new int[ctx.nprocs()];
@@ -344,7 +345,7 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
     /*if (ctx.mype() == 0) {
       printf("startcol: %d endcol: %d\n", startcol, endcol);
     }*/
-    memset(&colbuffer[0][0], 0, 2*BLOCKSIZE*nxP*sizeof(double));
+    memset(&colbuffer[0][0], 0, BLOCKSIZE*nxP*sizeof(double));
 #ifdef DEBUG  
   printf("[sLinsysRoot::factor2 -1] kktd: %1.2e\n",kktd.abmaxnorm());
 #endif
@@ -488,7 +489,7 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
 
 
 #ifdef TIMING
-  afterFactor();
+  //afterFactor();
   gprof.t_factorizeKKT+=MPI_Wtime()-stime;
 #endif
 

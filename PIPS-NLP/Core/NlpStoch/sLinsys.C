@@ -285,7 +285,7 @@ void sLinsys::factor(Data *prob_, Variables *vars_in,RegularizationAlg *RegInfo)
 	  skipUpdateReg = true;
 	}  	  
   }  
-#ifdef TIMING
+#ifdef VERBOSE 
   tTot = MPI_Wtime()-tTot;
   MPI_Barrier(MPI_COMM_WORLD);
   int myRank; MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
@@ -923,6 +923,7 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
   int ncols = endcol-startcol;
   int N, nxP, ncols_t, N_out;
   // A.getSize(N, nxP); assert(N==locmy);
+  A.getSize(N, nxP); 
   out.getSize(ncols_t, N_out); 
   // assert(N_out == nxP);
   // assert(endcol <= nxP &&  ncols_t >= ncols);
@@ -934,28 +935,35 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
     N = locnx+locns+locmy+locmz;
   else  
     N = locnx+locmy+locmz;
-  DenseGenMatrix cols(ncols,N);
+  int blocksize=64;
+  DenseGenMatrix cols(blocksize,N);
+  for (int it=0; it < nxP; it += blocksize) {
+    int start=it;
+    int end = MIN(it+blocksize,nxP);
+    int numcols = end-start;
+   cols.getStorageRef().m = numcols; // avoid extra solves
   bool allzero = true;
-  memset(cols[0],0,N*ncols*sizeof(double));
+  memset(cols[0],0,N*blocksize*sizeof(double));
   if(gOuterSolve>=3) {
-    R.getStorageRef().fromGetColBlock(startcol, &cols[0][0],
-  				    N, endcol-startcol, allzero);
-    A.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx+locns], 
-  				    N, endcol-startcol, allzero);
-    C.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx+locmy+locns], 
-  				    N, endcol-startcol, allzero);
+    R.getStorageRef().fromGetColBlock(start, &cols[0][0],
+  				    N, numcols, allzero);
+    A.getStorageRef().fromGetColBlock(start, &cols[0][locnx+locns], 
+  				    N, numcols, allzero);
+    C.getStorageRef().fromGetColBlock(start, &cols[0][locnx+locmy+locns], 
+  				    N, numcols, allzero);
   }
   else {
-    R.getStorageRef().fromGetColBlock(startcol, &cols[0][0],
-  				    N, endcol-startcol, allzero);
-    A.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx], 
-  				    N, endcol-startcol, allzero);
-    C.getStorageRef().fromGetColBlock(startcol, &cols[0][locnx+locmy], 
-  				    N, endcol-startcol, allzero);
+    R.getStorageRef().fromGetColBlock(start, &cols[0][0],
+  				    N, numcols, allzero);
+    A.getStorageRef().fromGetColBlock(start, &cols[0][locnx], 
+  				    N, numcols, allzero);
+    C.getStorageRef().fromGetColBlock(start, &cols[0][locnx+locmy], 
+  				    N, numcols, allzero);
   }
 
   //int mype; MPI_Comm_rank(MPI_COMM_WORLD, &mype);
   //printf("solving with multiple RHS %d \n", mype);	
+  if(!allzero) {
   solver->solve(cols);
 
 #ifdef DEBUG
@@ -963,11 +971,11 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
 #endif
   //printf("done solving %d \n", mype);
   
-  const int blocksize = ncols;
+  //const int blocksize = ncols;
   
-  for (int it=0; it < ncols; it += blocksize) {
-    int end = MIN(it+blocksize,ncols);
-    int numcols = end-it;
+  //for (int it=0; it < ncols; it += blocksize) {
+    //int end = MIN(it+blocksize,ncols);
+    //int numcols = end-it;
 #ifdef DEBUG
   printf("NUMCOLS: %d\n", numcols);
 #endif
@@ -975,21 +983,21 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
     // assert(false); //add Rt*x -- and test the code
     // SC-=At*y
     if(gOuterSolve>=3) {
-      R.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
+      R.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,  
        			-1.0, &cols[it][0], N);
-      A.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
-  				  -1.0, &cols[it][locnx+locns], N);
+      A.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,  
+  				  -1.0, &cols[0][locnx+locns], N);
       // SC-=Ct*z
-      C.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,
-  				  -1.0, &cols[it][locnx+locns+locmy], N);
+      C.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,
+  				  -1.0, &cols[0][locnx+locns+locmy], N);
     } else {
-      R.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
-       			-1.0, &cols[it][0], N);
-      A.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,  
-  				  -1.0, &cols[it][locnx], N);
+      R.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,  
+       			-1.0, &cols[0][0], N);
+      A.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,  
+  				  -1.0, &cols[0][locnx], N);
       // SC-=Ct*z
-      C.getStorageRef().transMultMat( 1.0, out[it], numcols, N_out,
-  				  -1.0, &cols[it][locnx+locmy], N);
+      C.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,
+  				  -1.0, &cols[0][locnx+locmy], N);
       
     }
   #ifdef DEBUG
@@ -1004,6 +1012,7 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
   }
   
 
+}
 }
 
 
