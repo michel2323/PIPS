@@ -24,10 +24,10 @@ using namespace std;
 /************************** ROOT *************************************/
 /*********************************************************************/
 
-#ifdef STOCH_TESTING
+// #ifdef STOCH_TESTING
 extern double g_iterNumber;
 double g_scenNum;
-#endif
+// #endif
 
 extern int gOuterSolve;
 extern int separateHandDiag;
@@ -172,6 +172,7 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
   int return_NegEval=-1;  
   int matIsSingular=0,matIsSingularAllReduce;
   int mype; MPI_Comm_rank(mpiComm, &mype);
+  static int counter=0;
 #ifdef TIMING
   double stime=MPI_Wtime();
   double stime1=MPI_Wtime();
@@ -202,6 +203,7 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
 
     children[c]->stochNode->resMon.recFactTmChildren_start();    
     //---------------------------------------------
+    counter++;
     children[c]->addTermToDenseSchurCompl(prob->children[c], kktd);
     //---------------------------------------------
     children[c]->stochNode->resMon.recFactTmChildren_stop();
@@ -257,6 +259,7 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
   gprof.t_factorizeKKT+=MPI_Wtime()-stime;
   stime=MPI_Wtime();
 #endif
+    printf("counter: %d\n", counter);
 	if(negEVal<0){ 
 	  return_NegEval = -1;
 	}else{
@@ -265,7 +268,7 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
   }
   
 #ifdef TIMING
-  afterFactor();
+  // afterFactor();
   gprof.t_factor2_total+=MPI_Wtime()-stime1;
 #endif
 
@@ -418,7 +421,7 @@ void sLinsysRoot::Ltsolve( sData *prob, OoqpVector& x )
   for(size_t it=0; it<children.size(); it++) {
     children[it]->Ltsolve2(prob->children[it], *b.children[it], x0);
   }
-#ifdef TIMING
+#ifdef VERBOSE 
   int myRank; MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 
   if(256*(myRank/256) == myRank) {
@@ -760,7 +763,7 @@ int sLinsysRoot::factorizeKKT()
   negEValTemp = solver->matrixChanged();
 
   //stochNode->resMon.recFactTmLocal_stop(); 
-#ifdef TIMING
+#ifdef VERBOSE
   st = MPI_Wtime()-st;
   MPI_Barrier(mpiComm);
   int mype; MPI_Comm_rank(mpiComm, &mype);

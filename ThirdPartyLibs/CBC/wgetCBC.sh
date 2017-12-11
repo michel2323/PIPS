@@ -17,7 +17,7 @@ if [ ! -f $fn ]; then
 else
   echo "File found. No download."
 fi
-
+rm -rf Cbc-2.9.8 src
 name=`basename ${fn} .tgz`
 tar -zxf $fn
 git apply ${name}.patch

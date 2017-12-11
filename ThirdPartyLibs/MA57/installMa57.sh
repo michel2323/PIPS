@@ -7,6 +7,8 @@
 #assume ma57 in tar.gz file
 fn=`ls ma57*.tar.gz`
 name=`basename ${fn} .tar.gz`
+
+rm -rf src ${name}
 tar -zxvf $fn
 ln -s ./${name} ./src
 

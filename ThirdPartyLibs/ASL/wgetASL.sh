@@ -19,6 +19,8 @@ else
 fi
 
 name=`basename ${fn} .tar.gz`
+
+rm -rf solvers src
 tar -xzf $fn
 ln -s ./${name} ./src
 

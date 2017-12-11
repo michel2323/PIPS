@@ -18,6 +18,7 @@ else
 fi
 
 name=`basename ${fn} .tar.gz`
+rm -rf ${name} src
 tar -zxvf $fn
 ln -s ./${name} ./src
 

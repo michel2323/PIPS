@@ -70,6 +70,10 @@ std::ostream& operator<<(std::ostream& os, const PerfMetrics& p)
 			<<"t_factorizeKKT "<< p.t_factorizeKKT << std::endl
 			<<"t_factor2_total "<< p.t_factor2_total << std::endl
 			<<"n_factor2 "<<p.n_factor2<< std::endl
+	    <<"t_addCol_before "<< p.t_addCol_before << " t_addCol_solve "<< p.t_addCol_solve
+			<<" t_addCol_after "<< p.t_addCol_after << std::endl
+			<<"n_addCol_solve "<< p.n_addCol_solve << std::endl
+	
 			<<"------------------"<< std::endl
 			<<"n_prob_info "<<p.n_prob_info<< std::endl
 			<<"n_init_x0 "<<p.n_init_x0<< std::endl
