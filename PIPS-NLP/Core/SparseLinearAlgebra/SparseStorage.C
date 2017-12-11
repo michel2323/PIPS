@@ -31,6 +31,7 @@ SparseStorage::SparseStorage( int m_, int n_, int len_ )
   len    = len_;
   jcolM  = new int[len];
   krowM  = new int[m+1];
+  bounds=0;
   for( i = 0; i <= m; i++ ) {
     krowM[i] = 0;
   }
@@ -811,17 +812,23 @@ void SparseStorage::transMultMat( double beta,  double* Y, int ny, int ldy,
   if(beta!=1.0) {
     for( int v = 0; v < ny; v++)
       for( j = 0; j < n; j++ ) {
+  if((v+ldy*j)>bounds && bounds != 0) printf("ERROR1 %d %d %d %d %d %d %d\n", bounds, n, v+ldy*j, j,v,ny,ldy);
 	Y[v +ldy*j] *= beta;  //Y[j +ldy*v] *= beta;
       }
   }
   for( i = 0; i < m; i++ ) {
     for( k = krowM[i]; k < krowM[i+1]; k++ ) {
       j = jcolM[k];
-#ifdef DEBUG
+// #ifdef DEBUG
       assert(j<n);
-#endif
+// #endif
       for (int v = 0; v<ny; v++) { 
-	Y[v+ldy*j] += alpha * M[k] * X[i+v*ldx];  //Y[j +ldy*v] *= beta;  
+  if((v+ldy*j)>bounds && bounds != 0) {
+    printf("ERROR2 bounds=%d n=%d v+ldy*j=%d j=%d v=%d ny=%d ldy=%d\n", bounds, n, v+ldy*j, j,v,ny,ldy);
+  }
+	else {
+    Y[v+ldy*j] += alpha * M[k] * X[i+v*ldx];  //Y[j +ldy*v] *= beta;  
+  }
       }
     }
   }

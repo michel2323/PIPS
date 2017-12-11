@@ -924,23 +924,27 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
   int N, nxP, ncols_t, N_out;
   // A.getSize(N, nxP); assert(N==locmy);
   A.getSize(N, nxP); 
+  if(nxP==-1) C.getSize(N,nxP);
+  if(nxP==-1) R.getSize(N,nxP);
   out.getSize(ncols_t, N_out); 
+  int bounds=ncols_t*N_out;
   // assert(N_out == nxP);
   // assert(endcol <= nxP &&  ncols_t >= ncols);
 
-  // if(nxP==-1) C.getSize(N,nxP);
   //if(nxP==-1) nxP = NP;
 
   if(gOuterSolve>=3)
     N = locnx+locns+locmy+locmz;
   else  
     N = locnx+locmy+locmz;
-  int blocksize=64;
+  int blocksize=ncols;
   DenseGenMatrix cols(blocksize,N);
   for (int it=0; it < nxP; it += blocksize) {
     int start=it;
+    if(start<ncols) {
     int end = MIN(it+blocksize,nxP);
     int numcols = end-start;
+    // printf("numcols: %d ncols_t: %d ncols: %d\n", numcols, ncols_t, ncols);
    cols.getStorageRef().m = numcols; // avoid extra solves
   bool allzero = true;
   memset(cols[0],0,N*blocksize*sizeof(double));
@@ -982,13 +986,19 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
   
     // assert(false); //add Rt*x -- and test the code
     // SC-=At*y
+    if((start+numcols) > endcol) {
+      numcols=endcol-start;
+    }
     if(gOuterSolve>=3) {
-      R.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,  
-       			-1.0, &cols[it][0], N);
-      A.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,  
+      R.setBounds(bounds);
+      R.getStorageRef().transMultMat( 1.0, &out[0][startcol], numcols, numcols,  
+       			-1.0, &cols[0][0], N);
+      A.setBounds(bounds);
+      A.getStorageRef().transMultMat( 1.0, &out[0][startcol], numcols, numcols,  
   				  -1.0, &cols[0][locnx+locns], N);
       // SC-=Ct*z
-      C.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,
+      C.setBounds(bounds);
+      C.getStorageRef().transMultMat( 1.0, &out[0][startcol], numcols, numcols,
   				  -1.0, &cols[0][locnx+locns+locmy], N);
     } else {
       R.getStorageRef().transMultMat( 1.0, &out[0][start], numcols, N_out,  
@@ -1000,6 +1010,7 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
   				  -1.0, &cols[0][locnx+locmy], N);
       
     }
+  }
   #ifdef DEBUG
     // printf("6\n");
     // for(int j=0; j<N_out;j++) {
@@ -1011,7 +1022,6 @@ void sLinsys::addColsToDenseSchurCompl(sData *prob,
   #endif
   }
   
-
 }
 }
 

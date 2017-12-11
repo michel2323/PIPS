@@ -296,7 +296,10 @@ int sLinsysRootAugEmtl::factor2(sData *prob, Variables *vars)
   
   int BLOCKSIZE = MIN((1048576*MAX_MB_FOR_COL_BUFFERS/
                             (2*sizeof(double)*nxP)),nxP);
+  // BLOCKSIZE=nxP;
   BLOCKSIZE=nxP;
+  printf("nxP: %d\n", nxP);
+  printf("BLOCKSIZE: %d\n", BLOCKSIZE);
 #ifdef TIMING
   gprof.n_colbuffer=((BLOCKSIZE)*nxP*8)/(1024*1024);
 #endif

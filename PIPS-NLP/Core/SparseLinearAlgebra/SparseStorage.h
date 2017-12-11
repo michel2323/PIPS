@@ -33,6 +33,7 @@ public:
   int * jcolM;
   int * krowM;
   double * M;
+  int bounds;
 
   double *additiveDiag;
 

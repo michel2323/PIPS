@@ -39,6 +39,7 @@ public:
    *  are treated as non-zero even though their value happens to be zero.
    */  
   virtual int numberOfNonZeros();
+  void setBounds(int bounds) { mStorage->bounds=bounds; }
 
   virtual int isKindOf( int matType );
 

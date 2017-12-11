@@ -69,7 +69,11 @@ int nlpstoch_solve( int argc, char *argv[],
 		      SOLVER* s, 
 		      FORMULATION* qp)
 {
-  MPI_Init(&argc, &argv);
+  int flag;
+  MPI_Initialized(flag);
+  if(flag==0) {
+    MPI_Init(&argc, &argv);
+  }
 
   int iRet = nlpstoch_solve(tree, params, s, qp);
 
