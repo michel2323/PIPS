@@ -172,7 +172,6 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
   int return_NegEval=-1;  
   int matIsSingular=0,matIsSingularAllReduce;
   int mype; MPI_Comm_rank(mpiComm, &mype);
-  static int counter=0;
 #ifdef TIMING
   double stime=MPI_Wtime();
   double stime1=MPI_Wtime();
@@ -203,7 +202,6 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
 
     children[c]->stochNode->resMon.recFactTmChildren_start();    
     //---------------------------------------------
-    counter++;
     children[c]->addTermToDenseSchurCompl(prob->children[c], kktd);
     //---------------------------------------------
     children[c]->stochNode->resMon.recFactTmChildren_stop();
@@ -259,7 +257,6 @@ int sLinsysRoot::factor2(sData *prob, Variables *vars)
   gprof.t_factorizeKKT+=MPI_Wtime()-stime;
   stime=MPI_Wtime();
 #endif
-    printf("counter: %d\n", counter);
 	if(negEVal<0){ 
 	  return_NegEval = -1;
 	}else{

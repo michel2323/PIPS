@@ -46,7 +46,7 @@ endif()
 option(WITH_MAKETEST "Enable 'make test'" ON)
 
 #with NLP profile metric
-option(WITH_NLPTIMING "Build with timing for PIPS-NLP" ON)
+option(WITH_NLPTIMING "Build with timing for PIPS-NLP" OFF)
 option(WITH_VERBOSE "Build with extra verbosity level" OFF)
 if(WITH_NLPTIMING)
 	add_definitions(-DNLPTIMING)
@@ -173,6 +173,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "BlueGeneP-static")
 
 #add_definitions(-DTIMING -DSTOCH_TESTING)
+#add_definitions(-DTIMING)
 
 # inspired by elemental-bgp
 if(MATH_LIBS)
@@ -199,6 +200,27 @@ find_library(DL_LIBRARY NAMES dl)
 #find_library(FL_LIBRARY NAMES fl PATHS /usr/lib /usr/local/lib /usr/local/opt/flex)
 
 set(SHARED_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdPartyLibs)
+
+# Elemental
+if(ELEMENTAL)
+  add_definitions(-DELEMENTAL)
+  if(BUILD_PIPS_NLP)
+    set(EMTL_DIR ${SHARED_DIR}/Elemental/install)
+    if(NOT EXISTS "${EMTL_DIR}/include/El.hpp")
+      message(FATAL_ERROR "Please run \"./build_elemental.sh\" in ${SHARED_DIR}/Elemental")
+    endif(NOT EXISTS "${EMTL_DIR}/include/El.hpp")
+    set(EMTL_INCLUDE_PATH ${EMTL_DIR}/include)
+    set(EMTL_LIB_PATH ${EMTL_DIR}/lib)
+    include_directories(${EMTL_INCLUDE_PATH})
+    link_directories(${EMTL_LIB_PATH})
+    message(STATUS "Elemental include directory: ${EMTL_INCLUDE_PATH}")
+    message(STATUS "Elemental lib directory: ${EMTL_LIB_PATH}")
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(EMTL_LIBS "-lEl -lpmrrr -lElSuiteSparse -lparmetis -lmetis")
+    message(STATUS "EMTL_LIBS:=${EMTL_LIBS}")
+  endif()
+endif()
 
 #CBC
 set(COIN_DIR ${SHARED_DIR}/CBC/src)
