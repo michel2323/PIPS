@@ -4,10 +4,11 @@ dist: trusty
 
 env:
   matrix:
-    - TEST_WITH_MA27=0 OPENMPI=1 MPICH=0
-    - TEST_WITH_MA27=1 OPENMPI=1 MPICH=0
-    - TEST_WITH_MA27=0 OPENMPI=0 MPICH=1
-    - TEST_WITH_MA27=1 OPENMPI=0 MPICH=1
+    - TEST_WITH_ELEMENTAL=0 TEST_WITH_MA27=0 OPENMPI=1 MPICH=0
+    - TEST_WITH_ELEMENTAL=0 TEST_WITH_MA27=1 OPENMPI=1 MPICH=0
+    - TEST_WITH_ELEMENTAL=0 TEST_WITH_MA27=0 OPENMPI=0 MPICH=1
+    - TEST_WITH_ELEMENTAL=0 TEST_WITH_MA27=1 OPENMPI=0 MPICH=1
+    - TEST_WITH_ELEMENTAL=1 TEST_WITH_MA27=0 OPENMPI=0 MPICH=1
 addons:
   ssh_known_hosts: xgitlab.cels.anl.gov
   
@@ -36,8 +37,10 @@ before_install:
   - if [ $OPENMPI -eq "1" ]; then export PATH=$PWD/local/bin:$PATH; fi
   
 install:
-  - ./build_3rdparty.sh $TEST_WITH_MA27 2
-  - ./build_pips.sh 2
+  - if [ $TEST_WITH_ELEMENTAL -eq "0" ]; then ./build_3rdparty.sh $TEST_WITH_MA27 2; fi 
+  - if [ $TEST_WITH_ELEMENTAL -eq "1" ]; then ./build_3rdparty_el.sh $TEST_WITH_MA27 2; fi 
+  - if [ $TEST_WITH_ELEMENTAL -eq "0" ]; then ./build_pips.sh 2; fi 
+  - if [ $TEST_WITH_ELEMENTAL -eq "1" ]; then ./build_pips_el.sh 2; fi 
   
 script:
   - cd build
