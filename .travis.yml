@@ -44,6 +44,6 @@ install:
   
 script:
   - cd build
-  - if [ $TEST_WITH_ELEMENTAL -eq "0" ]; make test; fi 
+  - if [ $TEST_WITH_ELEMENTAL -eq "0" ]; then make test; fi 
 # Exclude tests involving linking constraints. Not supported by libElemental
-  - if [ $TEST_WITH_ELEMENTAL -eq "1" ]; /usr/bin/ctest -E linking --force-new-ctest-process; fi 
+  - if [ $TEST_WITH_ELEMENTAL -eq "1" ]; then /usr/bin/ctest -E linking --force-new-ctest-process; fi 
