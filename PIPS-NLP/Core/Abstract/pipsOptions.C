@@ -251,7 +251,9 @@ void pipsOptions::readFile()
     //	  printf("not find option file: %s \n",fileName.c_str());
     return;
   } else {
-    printf("load option file: %s \n",fileName.c_str());
+    if (mype == 0){
+      printf("load option file: %s \n",fileName.c_str());
+    }
   }
   
   /* Read one line of the options file */

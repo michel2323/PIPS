@@ -56,7 +56,7 @@ class sData : public NlpGenData {
  public:
 //  long long nxlow, nxupp, mclow, mcupp;
 
-  int getLocalnx();
+  long getLocalnx();
   int getLocalmy();
   int getLocalmz();
   int getLocalSizes(int& nx, int& my, int& mz);

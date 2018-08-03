@@ -122,28 +122,29 @@ int NlpPIPSIpmInterface<FORMULATION,IPMSOLVER,UPDATENLP>::go(int addSlack) {
         << " equality constraints, " << data->getLocalmz() << " inequality constraints." << endl;
   }
   
-  int nscens=data->children.size();
+  long nscens=data->children.size();
   if(nscens) {
-  	if(mype==0) {
+    if(mype==0) {
       cout<< "2nd stage (use 1st scenario): " << data->children[0]->getLocalnx() << " variables, "
           << data->children[0]->getLocalmy() << " equality constraints, "
           << data->children[0]->getLocalmz() << " inequality constraints." << endl;
   	 
       std::cout << nscens << " scenarios." << endl;
-  	}
-    int sum_var=0,sum_icon=0,sum_econ=0,total_var=0,total_icon=0,total_econ=0;
-    for(int j=0;j<nscens;j++){
+    }
+    long sum_var=0,sum_icon=0,sum_econ=0,total_var=0,total_icon=0,total_econ=0;
+    for(long j=0;j<nscens;j++){
       sum_var += data->children[j]->getLocalnx();
       sum_econ += data->children[j]->getLocalmy();
       sum_icon += data->children[j]->getLocalmz();
     }
+    /*std::cout << "nscens: " << nscens << " Sums: " << sum_var << " " << sum_econ << " " << sum_icon << endl;*/
 
-    MPI_Allreduce(&sum_var, &total_var, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(&sum_econ, &total_econ, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    MPI_Allreduce(&sum_icon, &total_icon, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&sum_var, &total_var, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&sum_econ, &total_econ, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&sum_icon, &total_icon, 1, MPI_LONG, MPI_SUM, MPI_COMM_WORLD);
 
     if(mype==0) {
-        std::cout << "Total " << data->getLocalnx() + total_var << " variables, "
+        std::cout << "New Total " << data->getLocalnx() << " " << total_var << " variables, "
        << data->getLocalmy()+total_econ  << " equality constraints, "
        << data->getLocalmz()+total_icon << " inequality constraints. \n" << endl;
     }

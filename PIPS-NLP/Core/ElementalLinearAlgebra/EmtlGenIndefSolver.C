@@ -50,8 +50,10 @@ int EmtlGenIndefSolver::matrixChanged()
   // El::Display(A);
 #endif
   double before=mat->abmaxnorm();
-  El::LDL( A, dSub, p, false);
-  //El::LDL( A, dSub,p);
+  const auto pivotType = static_cast<El::LDLPivotType>(2);
+  El::LDLPivotCtrl<double> ctrl(pivotType);
+  El::LDL( A, dSub, p, false, ctrl);
+  //El::LDL( A, dSub, p, false);
   double after=mat->abmaxnorm();
   GetDiagonal(A,d);
   InertiaType inertia=El::ldl::Inertia(d,dSub);

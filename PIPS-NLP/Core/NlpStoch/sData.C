@@ -210,7 +210,7 @@ sData::~sData()
     delete children[it];
 }
 
-int sData::getLocalnx()
+long sData::getLocalnx()
 {
   StochSymMatrix& Qst = dynamic_cast<StochSymMatrix&>(*H);
   return Qst.diag->size();

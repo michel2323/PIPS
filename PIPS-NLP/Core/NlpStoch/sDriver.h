@@ -73,7 +73,7 @@ int nlpstoch_solve( int argc, char *argv[],
 
   int iRet = nlpstoch_solve(tree, params, s, qp);
 
-  MPI_Finalize(); 
+  /*MPI_Finalize(); */
 
   return iRet;
 }
