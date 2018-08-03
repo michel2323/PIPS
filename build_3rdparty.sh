@@ -20,8 +20,6 @@ fi
 echo $BUILD_WITH_MA27
 
 # Set icc here on KNL
-export CC='gcc'
-export CXX='g++'
 export CFLAGS='-O3'
 export CXXFLAGS='-O3'
 

@@ -17,7 +17,7 @@ if [ ! -f $fn ]; then
 else
   echo "File found. No download."
 fi
-
+rm -rf solvers src 
 name=`basename ${fn} .tar.gz`
 
 rm -rf solvers src
@@ -34,5 +34,8 @@ cp ./patch/dtoa.c ./src
 cd src
 #./configurehere CC='icc' CFLAGS='-O3 -xMIC-AVX512'
 #./configurehere CC='gcc' CFLAGS='-O3'
+export CC='cc'
+export CFLAGS='-O3'
 ./configurehere 
-make -j$1
+cp ../arith.h .
+make VERBOSE=1

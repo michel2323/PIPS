@@ -13,5 +13,6 @@ tar -zxvf $fn
 ln -s ./${name} ./src
 
 cd src
-./configure FFLAGS=-fPIC --with-metis=../../METIS/src/libmetis.a --prefix=`pwd`
-make -j$1 install
+#./configure FFLAGS=-fPIC --with-metis=../../METIS/src/libmetis.a --prefix=`pwd`
+./configure --host x86_64 FFLAGS=-fPIC --with-metis=../../METIS/src/libmetis.a --prefix=`pwd`
+make -j install

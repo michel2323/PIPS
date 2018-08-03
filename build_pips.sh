@@ -3,6 +3,10 @@
 ## This script should help to bootstrap PIPS.
 
 # exit if a command fails
+export CRAYPE_LINK_TYPE=dynamic
+export LD_LIBRARY_PATH=/home/mschanen/git/PIPS/ThirdPartyLibs/Elemental/install/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/mschanen/git/PIPS/ThirdPartyLibs/Elemental/install/lib:$LD_LIBRARY_PATH
+
 set -e
 if [ -z $1 ]; then
   NUMTHREADS=4
@@ -19,9 +23,8 @@ cd build
 # BUILD_PIPS_DOC: Build the documentation target (make doc)
 # DUMP=ON: Dump 1st stage matrix
 
-cmake -DDUMP=OFF -DELEMENTAL=OFF -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_ALL=OFF -DBUILD_PIPS_NLP=ON -DBUILD_PIPS_DOC=ON -B. -H..
-#cmake -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_ALL=OFF -DBUILD_PIPS_NLP=ON -DBUILD_PIPS_DOC=ON -B. -H..
+cmake -DELEMENTAL=OFF -DMATH_LIBS='-ldl' -DCMAKE_BUILD_TYPE=RELEASE -DBUILD_ALL=OFF -DBUILD_PIPS_NLP=ON -DBUILD_PIPS_DOC=ON -DDUMP=OFF -B. -H..
 
 # Build using 4 processes. 
-make -j
+make -j 
 
